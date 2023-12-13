@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import { TRPCReactProvider } from "~/trpc/react";
 import { NextAuthProvider } from "~/providers/auth";
 import { getServerAuthSession } from "~/server/auth";
+import { ThemeProvider } from "~/providers/theme";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,13 +22,15 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getServerAuthSession()
+  const session = await getServerAuthSession();
   return (
     <html lang="en">
       <body className={inter.className}>
-        <TRPCReactProvider cookies={cookies().toString()}>
-          <NextAuthProvider session={session}>{children}</NextAuthProvider>
-        </TRPCReactProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <TRPCReactProvider cookies={cookies().toString()}>
+            <NextAuthProvider session={session}>{children}</NextAuthProvider>
+          </TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
