@@ -9,6 +9,7 @@ import { ModeToggle } from "./_components/themeToggle";
 import HeroSection from "./_components/landing/heroSection";
 import TimelineElement from "./_components/landing/Timeline";
 import { work } from "~/data/work";
+import Footer from "./_components/footer";
 
 export default async function Home() {
   const hello = await api.post.hello.query({ text: "from tRPC" });
@@ -25,9 +26,6 @@ export default async function Home() {
 
         <div className="flex gap-3 justify-center items-center">
           <ModeToggle />
-          <Button variant="outline" size="icon">
-            <Youtube className="h-6 w-6 text-red-400" />
-          </Button>
           <Button variant="ghost">Login</Button>
         </div>
       </div>
@@ -44,7 +42,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center px-6 ">
+      <div className="flex items-center justify-center py-6 ">
         <div className="space-y-6 border-l-2 border-dashed max-w-7xl">
           {work.map((work: ITimelineElement, idx: number) => (
             <TimelineElement
@@ -57,6 +55,8 @@ export default async function Home() {
         </div>
       </div>
 
+      <Footer/>
+
       {/* <h1 className="">Hello</h1>
       {hello.greeting}
       <Button variant="default">Button</Button> */}
@@ -64,21 +64,21 @@ export default async function Home() {
   );
 }
 
-async function CrudShowcase() {
-  const session = await getServerAuthSession();
-  if (!session?.user) return null;
+// async function CrudShowcase() {
+//   const session = await getServerAuthSession();
+//   if (!session?.user) return null;
 
-  const latestPost = await api.post.getLatest.query();
+//   const latestPost = await api.post.getLatest.query();
 
-  return (
-    <div>
-      {latestPost ? (
-        <p>Your most recent post: {latestPost.name}</p>
-      ) : (
-        <p>You have no posts yet.</p>
-      )}
+//   return (
+//     <div>
+//       {latestPost ? (
+//         <p>Your most recent post: {latestPost.name}</p>
+//       ) : (
+//         <p>You have no posts yet.</p>
+//       )}
 
-      <CreatePost />
-    </div>
-  );
-}
+//       <CreatePost />
+//     </div>
+//   );
+// }
