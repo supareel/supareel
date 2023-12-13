@@ -57,9 +57,9 @@ export default async function Home() {
         </div>
       </div>
 
-      <h1 className="">Hello</h1>
+      {/* <h1 className="">Hello</h1>
       {hello.greeting}
-      <Button variant="default">Button</Button>
+      <Button variant="default">Button</Button> */}
     </main>
   );
 }
