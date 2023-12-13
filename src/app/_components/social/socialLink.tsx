@@ -1,5 +1,5 @@
 import React from 'react'
-import GitHub from "./Github";
+import GitHub from "./GitHub";
 import LinkedIn from "./LinkedIn";
 import Twitter from "./Twitter";
 import Youtube from "./Youtube";
