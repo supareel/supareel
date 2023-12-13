@@ -4,7 +4,7 @@ import SocialLinksList from "../social/socialLink";
 
 function Footer() {
   return (
-    <div className="border-t border-gray-200 grid grid-cols-3 p-4 items-center">
+    <div className="border-t border-gray-200 dark:border-gray-800 grid grid-cols-3 p-4 items-center">
       <Avatar>
         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
         <AvatarFallback>CN</AvatarFallback>

@@ -1,22 +1,18 @@
-import { CreatePost } from "~/app/_components/create-post";
-import { getServerAuthSession } from "~/server/auth";
-import { api } from "~/trpc/server";
+// import { api } from "~/trpc/server";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { TopNavigation } from "./_components/landing/navbar";
-import { Youtube } from "lucide-react";
 import { ModeToggle } from "./_components/themeToggle";
 import HeroSection from "./_components/landing/heroSection";
 import TimelineElement from "./_components/landing/Timeline";
 import { work } from "~/data/work";
 import Footer from "./_components/footer";
-
 export default async function Home() {
-  const hello = await api.post.hello.query({ text: "from tRPC" });
+  // const hello = await api.post.hello.query({ text: "from tRPC" });
 
   return (
     <main>
-      <div className="flex py-3 px-6 justify-between items-center">
+      <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 dark:bg-gray-950 bg-white">
         <Avatar>
           <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
           <AvatarFallback>CN</AvatarFallback>
