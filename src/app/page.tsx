@@ -1,4 +1,4 @@
-// import { api } from "~/trpc/server";
+"use client";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { TopNavigation } from "./_components/landing/navbar";
@@ -7,9 +7,11 @@ import HeroSection from "./_components/landing/heroSection";
 import TimelineElement from "./_components/landing/Timeline";
 import { work } from "~/data/work";
 import Footer from "./_components/footer";
-export default async function Home() {
+import { useRouter } from "next/navigation";
+import { LOGIN } from "~/utils/route_names";
+export default function Home() {
   // const hello = await api.post.hello.query({ text: "from tRPC" });
-
+  const router = useRouter();
   return (
     <main>
       <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 dark:bg-gray-950 bg-white">
@@ -22,7 +24,9 @@ export default async function Home() {
 
         <div className="flex gap-3 justify-center items-center">
           <ModeToggle />
-          <Button variant="ghost">Login</Button>
+          <Button variant="ghost" onClick={() => router.push(LOGIN)}>
+            Login
+          </Button>
         </div>
       </div>
       <HeroSection />
@@ -51,7 +55,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <Footer/>
+      <Footer />
 
       {/* <h1 className="">Hello</h1>
       {hello.greeting}
