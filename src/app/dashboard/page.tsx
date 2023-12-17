@@ -7,18 +7,23 @@ import { LOGIN } from "~/utils/route_names";
 
 function Dashboard() {
   const { status, data } = useSession({
-    required : true,
+    required: true,
     onUnauthenticated() {
-      redirect(LOGIN)
-    }
+      redirect(LOGIN);
+    },
   });
 
+  // TODO: remove this line
   console.log(`session : ${JSON.stringify(data)}`);
 
   if (status === "loading") {
     return "Loading...";
   }
-  return <div>Dashboard <Button onClick={() => signOut()}>Sign Out</Button></div>;
+  return (
+    <div>
+      Dashboard <Button onClick={() => signOut()}>Sign Out</Button>
+    </div>
+  );
 }
 
 export default Dashboard;

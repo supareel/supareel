@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
-import {  redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 
 import { UserAuthLoginForm } from "~/app/_components/auth/user-auth-form";
 import { useSession } from "next-auth/react";
-import { DASHBOARD } from "~/utils/route_names";
+import { AUTHERROR, DASHBOARD } from "~/utils/route_names";
+import { TopNavigation } from "~/app/_components/landing/navbar";
 
 // export const metadata: Metadata = {
 //   title: "Authentication",
@@ -13,11 +14,22 @@ import { DASHBOARD } from "~/utils/route_names";
 
 export default function AuthenticationPage() {
   const { status, data } = useSession();
+  const searchParams = useSearchParams();
+
   console.log(`session : ${JSON.stringify(data)}, status: ${status}`);
   if (status == "authenticated") redirect(DASHBOARD);
-  
+  if (searchParams.get("error"))
+    redirect(
+      AUTHERROR +
+        "?error=" +
+        encodeURIComponent(
+          "please switch to better internet connection, server timeout request timed out after 3500ms"
+        )
+    );
+
   return (
     <>
+      <TopNavigation />
       <div className="container h-screen flex-col items-center justify-center grid max-w-none">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
