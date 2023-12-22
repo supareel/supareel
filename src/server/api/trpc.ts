@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { YouTubeChannelDetails } from "@prisma/client";
 
 /**
  * 1. CONTEXT
@@ -102,3 +103,44 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+/**
+ * Protected (authenticated) procedure
+ *
+ * If you want a query or mutation to ONLY be accessible to logged in users, use this. It verifies
+ * the session is valid and guarantees `ctx.session.user` is not null.
+ *
+ * @see https://trpc.io/docs/procedures
+ */
+/** Reusable middleware that enforces users are logged in before running the procedure. */
+const ytAuthed = t.middleware(async ({ ctx, next }) => {
+  if (!ctx.session || !ctx.session.user) {
+    throw new TRPCError({ code: "UNAUTHORIZED" });
+  }
+
+  try {
+    const userYtChannel: YouTubeChannelDetails | null =
+      await ctx.db.youTubeChannelDetails.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
+    if (userYtChannel) console.log(userYtChannel?.access_token);
+  } catch (err) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "Youtube channel of user not connected",
+      cause: "Youtube access-token/refresh-token not found",
+    });
+  }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+export const ytProtectedProcedure = t.procedure
+  .use(enforceUserIsAuthed)
+  .use(ytAuthed);

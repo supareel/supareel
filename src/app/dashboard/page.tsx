@@ -1,11 +1,11 @@
 "use client";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import React from "react";
-import { Button } from "~/components/ui/button";
 import { LOGIN } from "~/utils/route_names";
+import YoutubeLogin from "../_components/social/YoutubeLogin";
 
-function Dashboard() {
+export default function Dashboard() {
   const { status, data } = useSession({
     required: true,
     onUnauthenticated() {
@@ -15,15 +15,13 @@ function Dashboard() {
 
   // TODO: remove this line
   console.log(`session : ${JSON.stringify(data)}`);
-
   if (status === "loading") {
     return "Loading...";
   }
-  return (
-    <div>
-      Dashboard <Button onClick={() => signOut()}>Sign Out</Button>
-    </div>
-  );
+  if (status == "authenticated")
+    return (
+      <div>
+        Dashboard <YoutubeLogin />
+      </div>
+    );
 }
-
-export default Dashboard;

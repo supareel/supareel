@@ -39,12 +39,11 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, user }) {
-      console.log("user from db", user)
       return {
         ...session,
         user: {
           ...session.user,
-          id: user.id
+          id: user.id,
         },
       };
     },
@@ -69,7 +68,7 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/login",
     error: "/auth/error", // Error code passed in query string as ?error=
-    verifyRequest: "/auth/verify"
+    verifyRequest: "/auth/verify",
   },
 };
 
