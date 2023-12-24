@@ -1,14 +1,7 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import { NextResponse } from "next/server";
-import { type IYtAuthorizeUrlResponse } from "~/app/_types/youtube";
-import { google } from "googleapis";
-import { env } from "~/env";
+import { NextResponse, type NextRequest } from "next/server";
 import { oauth2Client } from "~/server/api/youtube/utils";
 
-export async function GET(
-  req: NextApiRequest,
-  res: NextApiResponse<IYtAuthorizeUrlResponse>
-) {
+export async function GET(req: NextRequest, res: NextResponse) {
   try {
     // generate a url that asks permissions for Blogger and Google Calendar scopes
     const scopes = [

@@ -7,14 +7,15 @@
  * need to use are documented accordingly near the end.
  */
 
+import { type YouTubeChannelDetails } from "@prisma/client";
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
-import { YouTubeChannelDetails } from "@prisma/client";
-
+import { oauth2Client } from "./youtube/utils";
+import { getYTChannelDetailsApi } from "./youtube/ytChannelDetails";
 /**
  * 1. CONTEXT
  *
@@ -29,11 +30,22 @@ import { YouTubeChannelDetails } from "@prisma/client";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
+  const ytChannel: YouTubeChannelDetails = {
+    userId: "",
+    access_token: "",
+    refresh_token: "",
+    expiry_date: BigInt(0),
+    id: "",
+    id_token: "",
+    image: "",
+    name: "",
+  };
 
   return {
     db,
     session,
     ...opts,
+    ytChannel,
   };
 };
 
@@ -118,14 +130,30 @@ const ytAuthed = t.middleware(async ({ ctx, next }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
+  let userYtChannel: YouTubeChannelDetails | null;
   try {
-    const userYtChannel: YouTubeChannelDetails | null =
-      await ctx.db.youTubeChannelDetails.findFirst({
-        where: {
-          userId: ctx.session.user.id,
-        },
-      });
-    if (userYtChannel) console.log(userYtChannel?.access_token);
+    userYtChannel = await ctx.db.youTubeChannelDetails.findFirst({
+      where: {
+        userId: ctx.session.user.id,
+      },
+    });
+
+    // if access token expired, refresh it
+    oauth2Client.on("tokens", (tokens) => {
+      if (tokens.refresh_token) {
+        void db.youTubeChannelDetails.update({
+          where: {
+            id_token: tokens.id_token ?? "",
+          },
+          data: {
+            access_token: tokens.access_token ?? "",
+            expiry_date: tokens.expiry_date ?? 0,
+            id_token: tokens.id_token ?? "",
+            refresh_token: tokens.refresh_token ?? "",
+          },
+        });
+      }
+    });
   } catch (err) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -138,6 +166,7 @@ const ytAuthed = t.middleware(async ({ ctx, next }) => {
     ctx: {
       // infers the `session` as non-nullable
       session: { ...ctx.session, user: ctx.session.user },
+      ytChannel: userYtChannel,
     },
   });
 });

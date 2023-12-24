@@ -1,23 +1,21 @@
 "use client";
 import * as React from "react";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 import { ModeToggle } from "~/app/_components/themeToggle";
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { LOGIN } from "~/utils/route_names";
 import { cn } from "~/lib/utils";
-import { Icons } from "~/app/_components/icons";
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "~/components/ui/navigation-menu";
+import { NavigationMenuLink } from "~/components/ui/navigation-menu";
 import { signOut, useSession } from "next-auth/react";
+import { useTheme } from "next-themes";
+import { LogOut } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import { Button } from "~/components/ui/button";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -58,7 +56,8 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export function DashboardTopNavigation() {
-  const router = useRouter();
+  const { setTheme, theme } = useTheme();
+
   const { status, data } = useSession({
     required: true,
     onUnauthenticated() {
@@ -68,25 +67,40 @@ export function DashboardTopNavigation() {
 
   if (status == "authenticated")
     return (
-      <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 dark:bg-gray-950 bg-white border-b">
-        <div className="">
-          <h4 className="text-gray-500 font-bold text-lg leading-5">
-            {data?.user.name}
-          </h4>
-          <h5 className="text-gray-400 text-xs uppercase">ADMIN</h5>
-        </div>
-        <div className="flex gap-3 justify-center items-center">
-          <ModeToggle />
-          {status == "authenticated" ? (
-            <Button variant="destructive" onClick={() => signOut()}>
-              Sign Out
-            </Button>
-          ) : (
-            <Button variant="default" onClick={() => router.push(LOGIN)}>
-              Login
-            </Button>
-          )}
-        </div>
+      <div className="flex py-3 px-6 justify-end items-center gap-4 sticky top-0 z-50 dark:bg-gray-950 bg-white border-b border-gray-100 dark:border-gray-900">
+        <ModeToggle />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <div className="hover:cursor-pointer flex gap-4 items-center justify-center border rounded-md px-4 py-1">
+              <Avatar>
+                <AvatarImage src={data?.user.image ?? ""} alt="@shadcn" />
+                <AvatarFallback>{data?.user.name?.slice(0, 2)}</AvatarFallback>
+              </Avatar>
+              <div className="">
+                <h4 className="text-gray-500 font-bold text-lg leading-5">
+                  {data?.user.name}
+                </h4>
+                <h5 className="text-gray-400 text-xs uppercase">ADMIN</h5>
+              </div>
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-60">
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>Account</DropdownMenuItem>
+
+            <DropdownMenuItem className="focus:bg-transparent">
+              <Button
+                className="w-full"
+                variant="destructive"
+                onClick={() => signOut()}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   else return "Loading...";

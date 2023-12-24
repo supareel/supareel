@@ -1,26 +1,34 @@
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, ytProtectedProcedure } from "~/server/api/trpc";
 import {
   type YoutubeChannelDetailsOuput,
   youtubeChannelDetailsInput,
   youtubeChannelDetailsOutput,
 } from "~/schema/youtube";
-import { getYTChannelDetailsApi } from "../youtube_api";
+import axios from "axios";
+import { TRPCError } from "@trpc/server";
+import { getYTChannelDetailsApi } from "../youtube/ytChannelDetails";
 
 export const youtubeRouter = createTRPCRouter({
-  ytChannelDetails: publicProcedure
+  ytChannelDetails: ytProtectedProcedure
     .input(youtubeChannelDetailsInput)
     .output(youtubeChannelDetailsOutput)
-    .query(async ({ input }): Promise<YoutubeChannelDetailsOuput> => {
+    .query(async ({ ctx, input }): Promise<YoutubeChannelDetailsOuput> => {
       const { ytChannelId } = input;
       const __url = getYTChannelDetailsApi(ytChannelId);
-      console.log(`\n\n${__url.toString()}\n\n`);
 
+      if (!ctx.ytChannel)
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: "user youtube channel not linked",
+        });
+
+      // header
+      const response = await axios.get<YoutubeChannelDetailsOuput>(__url, {
+        headers: {
+          Authorization: `Bearer ${ctx.ytChannel.access_token}`,
+        },
+      });
       // make api call
-
-      const response: YoutubeChannelDetailsOuput = {
-        kind: id,
-      };
-
-      return response;
+      return response.data;
     }),
 });
