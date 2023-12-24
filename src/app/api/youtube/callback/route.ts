@@ -52,10 +52,10 @@ export async function GET(req: NextRequest, _: NextResponse) {
     }
   } catch (err) {
     console.error(err);
-    const errString: string = err.toString() as string;
-
     return NextResponse.redirect(
-      `${env.CLIENT_BASE_URL}/error?error=${encodeURIComponent(errString)}`,
+      `${env.CLIENT_BASE_URL}/error?error=${encodeURIComponent(
+        "failed to link youtube channel"
+      )}`,
       301
     );
     // return res.json({ serverError: err });
