@@ -6,6 +6,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
 import jwt from "jsonwebtoken";
 import { error } from "console";
+import { getMyYTChannelDetailsApi } from "~/server/api/youtube/ytChannelDetails";
+import axios from "axios";
+import type { YoutubeChannelDetailsOuput } from "~/schema/youtube";
 
 export async function GET(req: NextRequest, _: NextResponse) {
   try {
@@ -22,11 +25,31 @@ export async function GET(req: NextRequest, _: NextResponse) {
 
     if (!tokens) throw error("tokens not found");
 
-    // getYTChannelDetailsApi(id_decoded.);
-
     if (tokens != null && tokens != undefined) {
+      const __url = getMyYTChannelDetailsApi(tokens.access_token ?? "", [
+        "snippet",
+        "statistics",
+        "contentDetails",
+      ]);
+
+      const response = await axios.get<YoutubeChannelDetailsOuput>(__url, {
+        headers: {
+          Authorization: `Bearer ${tokens.access_token}`,
+        },
+      });
+
+      console.log(JSON.stringify(response.data.items[0]?.snippet));
+
       const data = await db.youTubeChannelDetails.upsert({
         create: {
+          yt_channel_id: response.data.items[0]?.id ?? "",
+          yt_channel_title: response.data.items[0]?.id ?? "",
+          yt_channel_customurl: response.data.items[0]?.snippet.customUrl,
+          yt_channel_thumbnails:
+            response.data.items[0]?.snippet.thumbnails.default.url,
+          yt_channel_published_at: new Date(
+            response.data.items[0]?.snippet.publishedAt ?? ""
+          ),
           access_token: tokens.access_token ?? "",
           expiry_date: tokens.expiry_date ?? 0,
           id_token: tokens.id_token ?? "",
@@ -38,6 +61,14 @@ export async function GET(req: NextRequest, _: NextResponse) {
           },
         },
         update: {
+          yt_channel_id: response.data.items[0]?.id ?? "",
+          yt_channel_title: response.data.items[0]?.snippet.title ?? "",
+          yt_channel_customurl: response.data.items[0]?.snippet.customUrl,
+          yt_channel_thumbnails:
+            response.data.items[0]?.snippet.thumbnails.default.url,
+          yt_channel_published_at: new Date(
+            response.data.items[0]?.snippet.publishedAt ?? ""
+          ),
           access_token: tokens.access_token ?? "",
           expiry_date: tokens.expiry_date ?? 0,
           id_token: tokens.id_token ?? "",

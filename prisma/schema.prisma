@@ -76,13 +76,16 @@ model VerificationToken {
 }
 
 model YouTubeChannelDetails {
-    id            String  @id @default(cuid())
-    name          String?
-    image         String?
-    user          User    @relation(fields: [userId], references: [id])
-    userId        String
-    access_token  String
-    refresh_token String
-    id_token      String  @unique
-    expiry_date   BigInt
+    id                      String    @id @default(cuid())
+    yt_channel_id           String    @unique
+    yt_channel_title        String?
+    yt_channel_thumbnails   String?
+    yt_channel_customurl    String?
+    yt_channel_published_at DateTime?
+    user                    User      @relation(fields: [userId], references: [id])
+    userId                  String
+    access_token            String
+    refresh_token           String
+    id_token                String    @unique
+    expiry_date             BigInt
 }

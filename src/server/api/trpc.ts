@@ -15,7 +15,7 @@ import { ZodError } from "zod";
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
 import { oauth2Client } from "./youtube/utils";
-import { getYTChannelDetailsApi } from "./youtube/ytChannelDetails";
+
 /**
  * 1. CONTEXT
  *
@@ -130,13 +130,13 @@ const ytAuthed = t.middleware(async ({ ctx, next }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  let userYtChannel: YouTubeChannelDetails | null;
   try {
-    userYtChannel = await ctx.db.youTubeChannelDetails.findFirst({
-      where: {
-        userId: ctx.session.user.id,
-      },
-    });
+    const userYtChannel: YouTubeChannelDetails | null =
+      await ctx.db.youTubeChannelDetails.findFirst({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
 
     // if access token expired, refresh it
     oauth2Client.on("tokens", (tokens) => {
@@ -154,6 +154,13 @@ const ytAuthed = t.middleware(async ({ ctx, next }) => {
         });
       }
     });
+    return next({
+      ctx: {
+        // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
+        ytChannel: userYtChannel,
+      },
+    });
   } catch (err) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
@@ -161,14 +168,6 @@ const ytAuthed = t.middleware(async ({ ctx, next }) => {
       cause: "Youtube access-token/refresh-token not found",
     });
   }
-
-  return next({
-    ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
-      ytChannel: userYtChannel,
-    },
-  });
 });
 export const ytProtectedProcedure = t.procedure
   .use(enforceUserIsAuthed)

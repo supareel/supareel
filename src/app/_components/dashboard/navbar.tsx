@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
+import YoutubeLogin from "~/app/_components/social/YoutubeLogin";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -68,8 +69,8 @@ export function DashboardTopNavigation() {
   if (status == "authenticated")
     return (
       <div className="flex py-3 px-6 justify-end items-center gap-4 sticky top-0 z-50 dark:bg-gray-950 bg-white border-b border-gray-100 dark:border-gray-900">
+        <YoutubeLogin />
         <ModeToggle />
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="hover:cursor-pointer flex gap-4 items-center justify-center border rounded-md px-4 py-1">
