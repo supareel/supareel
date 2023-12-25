@@ -1,8 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { env } from "~/env";
+import qs from "querystring";
 import { oauth2Client } from "~/server/api/youtube/utils";
 
 export async function GET(req: NextRequest, res: NextResponse) {
   try {
+    const redirectUrl = new URL("/api/youtube?", env.CLIENT_BASE_URL);
+    const params = req.url?.replace(redirectUrl.toString(), "");
+    const data = qs.decode(params ?? "");
+    const state = data?.state?.toString() ?? "";
     // generate a url that asks permissions for Blogger and Google Calendar scopes
     const scopes = [
       "https://www.googleapis.com/auth/youtube.channel-memberships.creator",
@@ -17,6 +23,7 @@ export async function GET(req: NextRequest, res: NextResponse) {
       // If you only need one scope you can pass it as a string
       scope: scopes,
       include_granted_scopes: true,
+      state: encodeURIComponent(state),
     });
 
     return NextResponse.redirect(authorizationUrl, 301);

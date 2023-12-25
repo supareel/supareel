@@ -13,9 +13,8 @@ export default function Dashboard() {
   });
 
   // TODO: remove this line
-  console.log(`session : ${JSON.stringify(data)}`);
   if (status === "loading") {
     return "Loading...";
   }
-  if (status == "authenticated") return <div>Dashboard</div>;
+  if (status == "authenticated") return <div></div>;
 }

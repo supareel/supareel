@@ -9,7 +9,6 @@ import {
   UsersIcon,
 } from "lucide-react";
 import { Tooltip } from "~/components/ui/tooltip";
-// import SideBarSlide from "./sideBarSlide";
 
 function Sidebar() {
   return (

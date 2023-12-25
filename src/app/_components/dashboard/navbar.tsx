@@ -13,58 +13,31 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
 import YoutubeLogin from "~/app/_components/social/YoutubeLogin";
-
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description:
-      "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
-];
+import { GearIcon } from "@radix-ui/react-icons";
+import { api } from "~/trpc/react";
 
 export function DashboardTopNavigation() {
-  const { setTheme, theme } = useTheme();
-
   const { status, data } = useSession({
     required: true,
     onUnauthenticated() {
       redirect(LOGIN);
     },
   });
+
+  const ytChannelList = api.channel.ytChannelDetails.useQuery({
+    userId: data?.user.id ?? "",
+  });
+  const [position, setPosition] = React.useState(
+    ytChannelList.data?.channels[0]?.yt_channel_title ?? ""
+  );
 
   if (status == "authenticated")
     return (
@@ -73,22 +46,62 @@ export function DashboardTopNavigation() {
         <ModeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <div className="hover:cursor-pointer flex gap-4 items-center justify-center border rounded-md px-4 py-1">
-              <Avatar>
+            <div className="hover:cursor-pointer flex gap-1 py-1 items-center justify-center border rounded-md px-2 h-9">
+              <Avatar className="h-7 w-7 rounded-full">
                 <AvatarImage src={data?.user.image ?? ""} alt="@shadcn" />
                 <AvatarFallback>{data?.user.name?.slice(0, 2)}</AvatarFallback>
               </Avatar>
-              <div className="">
-                <h4 className="text-gray-500 font-bold text-lg leading-5">
-                  {data?.user.name}
-                </h4>
-                <h5 className="text-gray-400 text-xs uppercase">ADMIN</h5>
-              </div>
+              <h4 className="text-gray-500 leading-5 capitalize">
+                {data?.user.name}
+              </h4>
             </div>
           </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="min-w-fit">
+            <DropdownMenuRadioGroup
+              value={position}
+              onValueChange={setPosition}
+            >
+              {ytChannelList.data?.channels.map((chan) => (
+                <DropdownMenuRadioItem
+                  value={
+                    chan.yt_channel_title
+                      ? chan.yt_channel_title
+                      : chan.yt_channel_customurl
+                      ? chan.yt_channel_customurl
+                      : ""
+                  }
+                >
+                  <div className="gap-2 flex justify-between items-center">
+                    <Avatar className="items-center h-8 w-8 rounded-full">
+                      <AvatarImage src={chan.yt_channel_thumbnails} />
+                      <AvatarFallback>NA</AvatarFallback>
+                    </Avatar>
+                    <span>{chan.yt_channel_title}</span>
+                  </div>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <GearIcon />
+            </Button>
+          </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-60">
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Account</DropdownMenuItem>
+            <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup
+              value={position}
+              onValueChange={setPosition}
+            >
+              <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="bottom">
+                Bottom
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
 
             <DropdownMenuItem className="focus:bg-transparent">
               <Button

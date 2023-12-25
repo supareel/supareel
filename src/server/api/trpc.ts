@@ -37,8 +37,11 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     expiry_date: BigInt(0),
     id: "",
     id_token: "",
-    image: "",
-    name: "",
+    yt_channel_customurl: "",
+    yt_channel_id: "",
+    yt_channel_published_at: null,
+    yt_channel_thumbnails: "",
+    yt_channel_title: "",
   };
 
   return {
@@ -139,21 +142,24 @@ const ytAuthed = t.middleware(async ({ ctx, next }) => {
       });
 
     // if access token expired, refresh it
-    oauth2Client.on("tokens", (tokens) => {
-      if (tokens.refresh_token) {
-        void db.youTubeChannelDetails.update({
-          where: {
-            id_token: tokens.id_token ?? "",
-          },
-          data: {
-            access_token: tokens.access_token ?? "",
-            expiry_date: tokens.expiry_date ?? 0,
-            id_token: tokens.id_token ?? "",
-            refresh_token: tokens.refresh_token ?? "",
-          },
-        });
-      }
-    });
+    // TODO: Figure out a way to refresh the tokens
+    // oauth2Client.on("tokens", (tokens) => {
+    //   if (tokens.refresh_token) {
+    //     void db.youTubeChannelDetails.update({
+    //       where: {
+    //         id_token: {
+    //           startsWith:
+    //         },
+    //       },
+    //       data: {
+    //         access_token: tokens.access_token ?? "",
+    //         expiry_date: tokens.expiry_date ?? 0,
+    //         id_token: tokens.id_token ?? "",
+    //         refresh_token: tokens.refresh_token ?? "",
+    //       },
+    //     });
+    //   }
+    // });
     return next({
       ctx: {
         // infers the `session` as non-nullable

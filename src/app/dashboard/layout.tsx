@@ -30,7 +30,6 @@ export default function DashboardLayout({
         <Sidebar />
         <div className="w-full">
           <DashboardTopNavigation />
-          <h2>Side Navbar</h2>
           {children}
         </div>
       </div>

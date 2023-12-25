@@ -4,11 +4,10 @@ import { env } from "~/env";
 import { oauth2Client } from "~/server/api/youtube/utils";
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
-import jwt from "jsonwebtoken";
 import { error } from "console";
 import { getMyYTChannelDetailsApi } from "~/server/api/youtube/ytChannelDetails";
 import axios from "axios";
-import type { YoutubeChannelDetailsOuput } from "~/schema/youtube";
+import type { YoutubeChannelDetailsOuput } from "~/schema/youtube_api";
 
 export async function GET(req: NextRequest, _: NextResponse) {
   try {
@@ -16,20 +15,16 @@ export async function GET(req: NextRequest, _: NextResponse) {
     const params = req.url?.replace(redirectUrl.toString(), "");
     const data = qs.decode(params ?? "");
     const code = data?.code ?? "";
+    const userEmail = decodeURIComponent(data?.state?.toString() ?? "");
 
     const { tokens } = await oauth2Client.getToken(code.toString());
     // save tokens to user db
-    const id_decoded: YtIdToken = jwt.decode(
-      tokens.id_token ?? ""
-    ) as YtIdToken;
 
     if (!tokens) throw error("tokens not found");
 
     if (tokens != null && tokens != undefined) {
       const __url = getMyYTChannelDetailsApi(tokens.access_token ?? "", [
         "snippet",
-        "statistics",
-        "contentDetails",
       ]);
 
       const response = await axios.get<YoutubeChannelDetailsOuput>(__url, {
@@ -38,12 +33,10 @@ export async function GET(req: NextRequest, _: NextResponse) {
         },
       });
 
-      console.log(JSON.stringify(response.data.items[0]?.snippet));
-
       const data = await db.youTubeChannelDetails.upsert({
         create: {
           yt_channel_id: response.data.items[0]?.id ?? "",
-          yt_channel_title: response.data.items[0]?.id ?? "",
+          yt_channel_title: response.data.items[0]?.snippet.title ?? "",
           yt_channel_customurl: response.data.items[0]?.snippet.customUrl,
           yt_channel_thumbnails:
             response.data.items[0]?.snippet.thumbnails.default.url,
@@ -56,7 +49,7 @@ export async function GET(req: NextRequest, _: NextResponse) {
           refresh_token: tokens.refresh_token ?? "",
           user: {
             connect: {
-              email: id_decoded.email,
+              email: userEmail,
             },
           },
         },
@@ -75,10 +68,9 @@ export async function GET(req: NextRequest, _: NextResponse) {
           refresh_token: tokens.refresh_token ?? "",
         },
         where: {
-          id_token: tokens.id_token ?? "",
+          yt_channel_id: response.data.items[0]?.id,
         },
       });
-      console.log(data);
       return NextResponse.redirect(`${env.CLIENT_BASE_URL}/dashboard`, 301);
     }
   } catch (err) {

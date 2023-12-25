@@ -86,6 +86,6 @@ model YouTubeChannelDetails {
     userId                  String
     access_token            String
     refresh_token           String
-    id_token                String    @unique
+    id_token                String
     expiry_date             BigInt
 }
