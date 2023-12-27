@@ -3,7 +3,7 @@ import { env } from "~/env";
 import qs from "querystring";
 import { oauth2Client } from "~/server/api/youtube/utils";
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   try {
     const redirectUrl = new URL("/api/youtube?", env.CLIENT_BASE_URL);
     const params = req.url?.replace(redirectUrl.toString(), "");
@@ -29,5 +29,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
     return NextResponse.redirect(authorizationUrl, 301);
   } catch (err) {
     console.error(err);
+    return NextResponse.redirect(
+      env.CLIENT_BASE_URL +
+        "/error=?error=failed+to+redirect+to+auth+url+for+login",
+      301
+    );
   }
 }
