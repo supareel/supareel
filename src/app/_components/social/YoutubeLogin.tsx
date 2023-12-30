@@ -1,4 +1,5 @@
 "use client";
+import { PlusSquareIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -15,8 +16,10 @@ function YoutubeLogin() {
       onClick={() =>
         router.push(`/api/youtube?state=${session.data?.user.email}`)
       }
+      variant="outline"
     >
-      Youtube Login
+      <PlusSquareIcon className="h-4 w-4 mr-2" />
+      Add Youtube Channel
     </Button>
   );
 }

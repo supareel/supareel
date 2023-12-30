@@ -6,7 +6,7 @@ import {
 } from "~/schema/youtube_api";
 import axios from "axios";
 import { TRPCError } from "@trpc/server";
-import { getYTChannelDetailsApi } from "../youtube/ytChannelDetails";
+import { getYTChannelDetailsApi } from "../youtube/yt_channel";
 // import { getYTChannelUploadApi } from "../youtube/ytChannelUploads";
 
 export const youtubeRouter = createTRPCRouter({

@@ -5,7 +5,7 @@ import { oauth2Client } from "~/server/api/youtube/utils";
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
 import { error } from "console";
-import { getMyYTChannelDetailsApi } from "~/server/api/youtube/ytChannelDetails";
+import { getMyYTChannelDetailsApi } from "~/server/api/youtube/yt_channel";
 import axios from "axios";
 import type { YoutubeChannelDetailsOuput } from "~/schema/youtube_api";
 
