@@ -33,12 +33,12 @@ model Account {
     providerAccountId  String
     oauth_token        String?
     oauth_token_secret String?
-    refresh_token      String? // @db.Text
-    access_token       String? // @db.Text
+    refresh_token      String? @db.LongText
+    access_token       String? @db.LongText
     expires_at         Int?
     token_type         String?
     scope              String?
-    id_token           String? // @db.Text
+    id_token           String? @db.LongText
     session_state      String?
     user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -77,18 +77,19 @@ model VerificationToken {
 }
 
 model YouTubeChannelDetails {
-    id                      String    @id @default(cuid())
-    yt_channel_id           String    @unique
-    yt_channel_title        String?
-    yt_channel_thumbnails   String?
-    yt_channel_customurl    String?
-    yt_channel_published_at DateTime?
-    user                    User      @relation(fields: [userId], references: [id])
-    userId                  String
-    access_token            String
-    refresh_token           String
-    id_token                String
-    expiry_date             BigInt
+    id                             String    @id @default(cuid())
+    yt_channel_id                  String    @unique
+    yt_channel_title               String?
+    yt_channel_thumbnails          String?
+    yt_channel_customurl           String?
+    yt_channel_published_at        DateTime?
+    yt_channel_uploads_playlist_id String
+    user                           User      @relation(fields: [userId], references: [id])
+    userId                         String
+    access_token                   String    @db.LongText
+    refresh_token                  String    @db.LongText
+    id_token                       String    @db.LongText
+    expiry_date                    BigInt
 
     @@index([userId])
 }

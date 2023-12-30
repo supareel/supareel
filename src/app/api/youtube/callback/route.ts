@@ -1,4 +1,3 @@
-import { type YtIdToken } from "~/app/_types/youtube";
 import qs from "querystring";
 import { env } from "~/env";
 import { oauth2Client } from "~/server/api/youtube/utils";
@@ -25,6 +24,7 @@ export async function GET(req: NextRequest, _: NextResponse) {
     if (tokens != null && tokens != undefined) {
       const __url = getMyYTChannelDetailsApi(tokens.access_token ?? "", [
         "snippet",
+        "contentDetails",
       ]);
 
       const response = await axios.get<YoutubeChannelDetailsOuput>(__url, {
@@ -33,15 +33,19 @@ export async function GET(req: NextRequest, _: NextResponse) {
         },
       });
 
+      const ytChannelDetails = response.data.items[0];
+
       const data = await db.youTubeChannelDetails.upsert({
         create: {
-          yt_channel_id: response.data.items[0]?.id ?? "",
-          yt_channel_title: response.data.items[0]?.snippet.title ?? "",
-          yt_channel_customurl: response.data.items[0]?.snippet.customUrl,
+          yt_channel_id: ytChannelDetails?.id ?? "",
+          yt_channel_title: ytChannelDetails?.snippet.title ?? "",
+          yt_channel_customurl: ytChannelDetails?.snippet.customUrl,
           yt_channel_thumbnails:
-            response.data.items[0]?.snippet.thumbnails.default.url,
+            ytChannelDetails?.snippet.thumbnails.default.url,
+          yt_channel_uploads_playlist_id:
+            ytChannelDetails?.contentDetails.relatedPlaylists.uploads ?? "",
           yt_channel_published_at: new Date(
-            response.data.items[0]?.snippet.publishedAt ?? ""
+            ytChannelDetails?.snippet.publishedAt ?? ""
           ),
           access_token: tokens.access_token ?? "",
           expiry_date: tokens.expiry_date ?? 0,
@@ -54,13 +58,15 @@ export async function GET(req: NextRequest, _: NextResponse) {
           },
         },
         update: {
-          yt_channel_id: response.data.items[0]?.id ?? "",
-          yt_channel_title: response.data.items[0]?.snippet.title ?? "",
-          yt_channel_customurl: response.data.items[0]?.snippet.customUrl,
+          yt_channel_id: ytChannelDetails?.id ?? "",
+          yt_channel_title: ytChannelDetails?.snippet.title ?? "",
+          yt_channel_customurl: ytChannelDetails?.snippet.customUrl,
           yt_channel_thumbnails:
-            response.data.items[0]?.snippet.thumbnails.default.url,
+            ytChannelDetails?.snippet.thumbnails.default.url,
+          yt_channel_uploads_playlist_id:
+            ytChannelDetails?.contentDetails.relatedPlaylists.uploads,
           yt_channel_published_at: new Date(
-            response.data.items[0]?.snippet.publishedAt ?? ""
+            ytChannelDetails?.snippet.publishedAt ?? ""
           ),
           access_token: tokens.access_token ?? "",
           expiry_date: tokens.expiry_date ?? 0,
@@ -68,7 +74,7 @@ export async function GET(req: NextRequest, _: NextResponse) {
           refresh_token: tokens.refresh_token ?? "",
         },
         where: {
-          yt_channel_id: response.data.items[0]?.id,
+          yt_channel_id: ytChannelDetails?.id,
         },
       });
       return NextResponse.redirect(`${env.CLIENT_BASE_URL}/dashboard`, 301);

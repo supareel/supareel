@@ -28,6 +28,8 @@ export const channelDetailsRouter = createTRPCRouter({
             yt_channel_title: dbData.yt_channel_title ?? "",
             yt_channel_thumbnails: dbData.yt_channel_thumbnails ?? "",
             yt_channel_customurl: dbData.yt_channel_customurl ?? "",
+            yt_channel_uploads_playlist_id:
+              dbData.yt_channel_uploads_playlist_id,
             yt_channel_published_at:
               dbData.yt_channel_published_at ?? undefined,
             userId: dbData.userId ?? "",

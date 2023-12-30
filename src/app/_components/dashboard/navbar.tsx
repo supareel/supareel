@@ -35,109 +35,122 @@ export function DashboardTopNavigation() {
     userId: data?.user.id ?? "",
   });
   const [position, setPosition] = React.useState(
-    ytChannelList.data?.channels[0]?.yt_channel_title ?? ""
+    ytChannelList.data?.channels[0]
+  );
+  React.useEffect(
+    () => setPosition(ytChannelList.data?.channels[0]),
+    [ytChannelList.isFetched]
   );
 
-  if (status == "authenticated")
-    return (
-      <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 dark:bg-gray-950 bg-white border-b border-gray-100 dark:border-gray-900">
-        <div>
-          <h4 className="text-xl font-bold italic text-orange-500">Supareel</h4>
-        </div>
-        <div className="flex justify-end  gap-4 items-center">
-          <ModeToggle />
-
-          {/* Switch Channels */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="lg">
-                <Avatar className="h-7 w-7 rounded-full mr-2">
-                  <AvatarImage src={data?.user.image ?? ""} alt="@shadcn" />
-                  <AvatarFallback>
-                    {data?.user.name?.slice(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <h4 className="text-gray-500 leading-5 capitalize">
-                  {data?.user.name}
-                </h4>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="min-w-fit">
-              <DropdownMenuLabel>My Youtube Channels</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuRadioGroup
-                value={position}
-                onValueChange={setPosition}
-              >
-                {ytChannelList.data?.channels.map((chan) => (
-                  <DropdownMenuRadioItem
-                    value={
-                      chan.yt_channel_title
-                        ? chan.yt_channel_title
-                        : chan.yt_channel_customurl
-                        ? chan.yt_channel_customurl
-                        : ""
-                    }
-                  >
-                    <div className="gap-2 flex justify-between items-center">
-                      <Avatar className="items-center h-8 w-8 rounded-full">
-                        <AvatarImage src={chan.yt_channel_thumbnails} />
-                        <AvatarFallback>NA</AvatarFallback>
-                      </Avatar>
-                      <span>{chan.yt_channel_title}</span>
-                    </div>
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <YoutubeLogin />
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* settings */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <GearIcon />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-60">
-              <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuRadioGroup
-                value={position}
-                onValueChange={setPosition}
-              >
-                <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="bottom">
-                  Bottom
-                </DropdownMenuRadioItem>
-                <DropdownMenuRadioItem value="right">
-                  Right
-                </DropdownMenuRadioItem>
-              </DropdownMenuRadioGroup>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem className="focus:bg-transparent">
-                <Button
-                  className="w-full"
-                  variant="destructive"
-                  onClick={() => signOut()}
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+  return status == "authenticated" ? (
+    <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 dark:bg-gray-950 bg-white border-b border-gray-100 dark:border-gray-900">
+      <div>
+        <h4 className="text-xl font-bold italic text-orange-500">SupaReel</h4>
       </div>
-    );
-  else return "Loading...";
+      <div className="flex justify-end  gap-4 items-center">
+        <ModeToggle />
+
+        {/* Switch Channels */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" size="lg">
+              <Avatar className="h-5 w-5 rounded-full mr-3">
+                <AvatarImage
+                  src={position?.yt_channel_thumbnails ?? ""}
+                  alt="@shadcn"
+                />
+                <AvatarFallback>
+                  {position?.yt_channel_title?.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <h4 className="text-gray-500 leading-5 capitalize">
+                {position?.yt_channel_title}
+              </h4>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="min-w-fit">
+            <DropdownMenuLabel>My Youtube Channels</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuRadioGroup
+              value={position?.yt_channel_title}
+              onValueChange={(event) => {
+                const newChannelDataList = ytChannelList.data?.channels.filter(
+                  (data) => data.yt_channel_title == event
+                );
+                if (newChannelDataList) {
+                  const newChannelData = newChannelDataList[0];
+                  setPosition(newChannelData);
+                }
+              }}
+            >
+              {ytChannelList.data?.channels.map((chan) => (
+                <DropdownMenuRadioItem value={chan.yt_channel_title ?? ""}>
+                  <div className="gap-2 flex justify-between items-center">
+                    <Avatar className="items-center h-8 w-8 rounded-full">
+                      <AvatarImage src={chan.yt_channel_thumbnails} />
+                      <AvatarFallback>NA</AvatarFallback>
+                    </Avatar>
+                    <span>{chan.yt_channel_title}</span>
+                  </div>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <YoutubeLogin />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        {/* settings */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <GearIcon />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-60">
+            <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup
+              value={position?.yt_channel_title}
+              onValueChange={(event) => {
+                const newChannelDataList = ytChannelList.data?.channels.filter(
+                  (data) => data.yt_channel_title == event
+                );
+                if (newChannelDataList) {
+                  const newChannelData = newChannelDataList[0];
+                  setPosition(newChannelData);
+                }
+              }}
+            >
+              <DropdownMenuRadioItem value="top">Top</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="bottom">
+                Bottom
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="right">Right</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem className="focus:bg-transparent">
+              <Button
+                className="w-full"
+                variant="destructive"
+                onClick={() => signOut()}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Sign Out
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  ) : (
+    "Loading..."
+  );
 }
 
 const ListItem = React.forwardRef<
