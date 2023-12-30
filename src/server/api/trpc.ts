@@ -41,6 +41,7 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     yt_channel_published_at: null,
     yt_channel_thumbnails: "",
     yt_channel_title: "",
+    yt_channel_uploads_playlist_id: "",
   };
 
   return {
