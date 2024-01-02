@@ -3,9 +3,8 @@ import * as React from "react";
 import { cn } from "~/lib/utils";
 import { Icons } from "~/app/_components/icons";
 import { Button } from "~/components/ui/button";
-import { type LiteralUnion, signIn } from "next-auth/react"
+import { type LiteralUnion, signIn } from "next-auth/react";
 import { type BuiltInProviderType } from "next-auth/providers/index";
-
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
   test?: string;
@@ -13,20 +12,23 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export function UserAuthLoginForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [selectedProvider, setSelectedProvider] = React.useState<LiteralUnion<BuiltInProviderType>>("");
+  const [selectedProvider, setSelectedProvider] =
+    React.useState<LiteralUnion<BuiltInProviderType>>("");
 
-
-  async function onSubmit(event: React.SyntheticEvent, provider:  LiteralUnion<BuiltInProviderType>) {
+  async function onSubmit(
+    event: React.SyntheticEvent,
+    provider: LiteralUnion<BuiltInProviderType>
+  ) {
     event.preventDefault();
     setIsLoading(true);
-    setSelectedProvider(provider)
+    setSelectedProvider(provider);
 
-    await signIn(provider)
+    await signIn(provider);
 
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
-    setSelectedProvider("")
+    setSelectedProvider("");
   }
 
   return (
@@ -35,9 +37,10 @@ export function UserAuthLoginForm({ className, ...props }: UserAuthFormProps) {
         variant="outline"
         className="hover:border-red-300 hover:text-red-500"
         type="button"
+        size="lg"
         disabled={isLoading}
         onClick={async (event) => {
-          await onSubmit(event, "google")
+          await onSubmit(event, "google");
         }}
       >
         {selectedProvider == "google" ? (
@@ -51,9 +54,10 @@ export function UserAuthLoginForm({ className, ...props }: UserAuthFormProps) {
         variant="outline"
         className="hover:border-blue-300 hover:text-blue-500"
         type="button"
+        size="lg"
         disabled={isLoading}
         onClick={async (event) => {
-          await onSubmit(event, "facebook")
+          await onSubmit(event, "facebook");
         }}
       >
         {selectedProvider == "facebook" ? (
@@ -67,9 +71,10 @@ export function UserAuthLoginForm({ className, ...props }: UserAuthFormProps) {
         variant="outline"
         className="hover:border-sky-300 hover:text-sky-500"
         type="button"
+        size="lg"
         disabled={isLoading}
         onClick={async (event) => {
-          await onSubmit(event, "twitter")
+          await onSubmit(event, "twitter");
         }}
       >
         {selectedProvider == "twitter" ? (
