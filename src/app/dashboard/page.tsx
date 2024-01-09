@@ -4,14 +4,7 @@ import { redirect } from "next/navigation";
 import React from "react";
 import { api } from "~/trpc/react";
 import { LOGIN } from "~/utils/route_names";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import Image from "next/image";
 
 export default function Dashboard() {
@@ -22,8 +15,13 @@ export default function Dashboard() {
     },
   });
 
-  const ytVideosList = api.playlistItem.getUserUploadedVideos.useQuery({
+  const ytChannelList = api.channel.ytChannelDetails.useQuery({
     userId: data?.user.id ?? "",
+  });
+
+  const ytVideosList = api.playlistItem.saveUserUploadedVideos.useQuery({
+    userId: data?.user.id ?? "",
+    ytChannelId: ytChannelList.data?.channels[0]?.yt_channel_id ?? "",
   });
 
   // TODO: remove this line
@@ -36,23 +34,20 @@ export default function Dashboard() {
         <div className="grid grid-cols-4 gap-4 m-4">
           {ytVideosList.data?.items.map((videoMeta) => (
             <Card key={videoMeta.id}>
-              <CardHeader>
+              <CardHeader className="relative h-44">
                 <Image
                   alt={"image for yt video"}
+                  className="rounded-t-xl"
                   src={videoMeta.snippet.thumbnails.medium.url}
-                  height={200}
-                  width={280}
+                  fill
                 />
+              </CardHeader>
+              <CardContent>
                 <CardTitle className="my-5">
                   {videoMeta.snippet.title}
                 </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardContent></CardContent>
-                <CardDescription>
-                  {videoMeta.snippet.description.slice(0, 100)}...
-                </CardDescription>
               </CardContent>
+
               {/* <CardFooter>
                 <p>Card Footer</p>
               </CardFooter> */}
