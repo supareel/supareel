@@ -1,5 +1,0 @@
-export const DASHBOARD = "/dashboard"
-export const LOGIN = "/auth/login"
-export const CALLBACK = "/auth/callback"
-export const AUTHERROR = "/auth/error"
-export const HOME = "/"
