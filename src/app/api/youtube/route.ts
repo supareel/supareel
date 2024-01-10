@@ -1,13 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "~/env";
-import qs from "querystring";
 import { oauth2Client } from "~/server/api/youtube/utils";
 
 export async function GET(req: NextRequest) {
   try {
     const params = req.nextUrl.searchParams;
-
     const state = params.get("state") ?? "";
+    if (!state) {
+      throw new Error("state not found");
+    }
     // generate a url that asks permissions for Blogger and Google Calendar scopes
     const scopes = [
       "https://www.googleapis.com/auth/youtube.channel-memberships.creator",

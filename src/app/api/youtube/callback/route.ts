@@ -1,9 +1,7 @@
-import qs from "querystring";
 import { env } from "~/env";
 import { oauth2Client } from "~/server/api/youtube/utils";
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
-import { error } from "console";
 import {
   type YoutubeChannelDetailsOuput,
   getMyYTChannelDetailsApi,
@@ -17,10 +15,18 @@ export async function GET(req: NextRequest, _: NextResponse) {
     const code = params.get("code");
     const userEmail = decodeURIComponent(state?.toString() ?? "");
 
-    const { tokens } = await oauth2Client.getToken(code!.toString());
+    if (!code) {
+      throw new Error("Authorization code not found");
+    }
+
+    if (!state) {
+      throw new Error("state not found");
+    }
+
+    const { tokens } = await oauth2Client.getToken(code.toString());
     // save tokens to user db
 
-    if (!tokens) throw error("tokens not found");
+    if (!tokens) throw Error("tokens not found");
 
     if (tokens != null && tokens != undefined) {
       const __url = getMyYTChannelDetailsApi(tokens.access_token ?? "", [
