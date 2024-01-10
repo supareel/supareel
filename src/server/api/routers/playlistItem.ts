@@ -37,6 +37,14 @@ export const playlistItemsRouter = createTRPCRouter({
     .output(ytPlaylistVideosApiResponse)
     .query(async ({ ctx, input }): Promise<YTPlaylistVideosApiResponse> => {
       const { userId, ytChannelId } = input;
+
+      console.log(
+        "============================================================="
+      );
+      console.log(input);
+      console.log(
+        "============================================================="
+      );
       try {
         const dbResponse: YouTubeChannelDetails =
           await ctx.db.youTubeChannelDetails.findFirstOrThrow({
