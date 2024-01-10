@@ -67,7 +67,7 @@ export const videoRouter = createTRPCRouter({
         });
         response.data.items[0]?.contentDetails.videoId;
         // save the youtube videos
-        const __data__: YouTubeVideo[] = response.data.items.map((dat) => ({
+        const __data__ = response.data.items.map((dat) => ({
           user_id: userId,
           yt_channel_id: dat.snippet.channelId ?? "",
           yt_video_id: dat.contentDetails.videoId,
