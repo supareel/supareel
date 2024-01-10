@@ -76,19 +76,22 @@ export const videoRouter = createTRPCRouter({
           yt_video_thumbnail: dat.snippet.thumbnails.medium.url,
         }));
 
-        __data__.map(async (ytVid) => {
-          await ctx.db.youTubeVideo.upsert({
-            where: {
-              yt_video_id: ytVid.yt_video_id,
-            },
-            update: {
-              yt_video_title: ytVid.yt_video_title.toString() ?? "",
-              yt_video_description: ytVid.yt_video_description.toString() ?? "",
-              yt_video_thumbnail: ytVid.yt_video_thumbnail.toString() ?? "",
-            },
-            create: ytVid,
-          });
-        });
+        await Promise.all(
+          __data__.map(async (ytVid) => {
+            await ctx.db.youTubeVideo.upsert({
+              where: {
+                yt_video_id: ytVid.yt_video_id,
+              },
+              update: {
+                yt_video_title: ytVid.yt_video_title.toString() ?? "",
+                yt_video_description:
+                  ytVid.yt_video_description.toString() ?? "",
+                yt_video_thumbnail: ytVid.yt_video_thumbnail.toString() ?? "",
+              },
+              create: ytVid,
+            });
+          })
+        );
 
         const dbSavedYtVideosResponse: YouTubeVideo[] =
           await ctx.db.youTubeVideo.findMany({
@@ -101,82 +104,86 @@ export const videoRouter = createTRPCRouter({
           String(e.yt_video_id)
         );
 
-        userChannelVideosId.map(async (ytVidId) => {
-          const __comments_url = getYTVideoCommentsApi(
-            ytVidId,
-            dbResponse.access_token,
-            ["snippet", "replies"]
-          );
-          // get comments for all videos
-          const comment_response = await axios.get<YTVideoCommentsApiResponse>(
-            __comments_url,
-            {
-              headers: {
-                Authorization: `Bearer ${ctx.ytChannel?.access_token}`,
-              },
-            }
-          );
-          // filter out all the comments
-          comment_response.data.items.map(async (dat) => {
-            let comments: {
-              raw: string;
-              text: string;
-              videoId: string;
-              emojis: string;
-            }[] = [];
-            const _textFiltered = separateEmojiFromText(
-              dat.snippet.topLevelComment.snippet.textDisplay
+        await Promise.all(
+          userChannelVideosId.map(async (ytVidId) => {
+            const __comments_url = getYTVideoCommentsApi(
+              ytVidId,
+              dbResponse.access_token,
+              ["snippet", "replies"]
             );
-
-            comments = [
-              {
-                raw: removeHtmlTags(
-                  dat.snippet.topLevelComment.snippet.textDisplay
-                ),
-                text: _textFiltered.text,
-                videoId: dat.snippet.videoId,
-                emojis: _textFiltered.emojis,
-              },
-            ];
-
-            if (dat.replies)
-              comments.push(
-                ...dat.replies.comments.map((reply) => {
-                  const _replyFiltered = separateEmojiFromText(
-                    reply.snippet.textDisplay
-                  );
-                  return {
-                    raw: removeHtmlTags(reply.snippet.textDisplay),
-                    text: _replyFiltered.text,
-                    emojis: _replyFiltered.emojis,
-                    videoId: reply.snippet.videoId,
-                  };
-                })
-              );
-
-            // save all comments
-            comments.map(async (cmt) => {
-              const _hash_ = generateCommentHash(cmt.text);
-              await ctx.db.youTubeComments.upsert({
-                where: {
-                  hash: _hash_,
-                },
-                create: {
-                  yt_video_id: cmt.videoId,
-                  emojis: cmt.emojis,
-                  comment: cmt.raw,
-                  hash: _hash_,
-                  mood: "",
-                },
-                update: {
-                  yt_video_id: cmt.videoId,
-                  emojis: cmt.emojis,
-                  comment: cmt.raw,
+            // get comments for all videos
+            const comment_response =
+              await axios.get<YTVideoCommentsApiResponse>(__comments_url, {
+                headers: {
+                  Authorization: `Bearer ${ctx.ytChannel?.access_token}`,
                 },
               });
-            });
-          });
-        });
+            // filter out all the comments
+            await Promise.all(
+              comment_response.data.items.map(async (dat) => {
+                let comments: {
+                  raw: string;
+                  text: string;
+                  videoId: string;
+                  emojis: string;
+                }[] = [];
+                const _textFiltered = separateEmojiFromText(
+                  dat.snippet.topLevelComment.snippet.textDisplay
+                );
+
+                comments = [
+                  {
+                    raw: removeHtmlTags(
+                      dat.snippet.topLevelComment.snippet.textDisplay
+                    ),
+                    text: _textFiltered.text,
+                    videoId: dat.snippet.videoId,
+                    emojis: _textFiltered.emojis,
+                  },
+                ];
+
+                if (dat.replies)
+                  comments.push(
+                    ...dat.replies.comments.map((reply) => {
+                      const _replyFiltered = separateEmojiFromText(
+                        reply.snippet.textDisplay
+                      );
+                      return {
+                        raw: removeHtmlTags(reply.snippet.textDisplay),
+                        text: _replyFiltered.text,
+                        emojis: _replyFiltered.emojis,
+                        videoId: reply.snippet.videoId,
+                      };
+                    })
+                  );
+
+                // save all comments
+                await Promise.all(
+                  comments.map(async (cmt) => {
+                    const _hash_ = generateCommentHash(cmt.text);
+                    await ctx.db.youTubeComments.upsert({
+                      where: {
+                        hash: _hash_,
+                      },
+                      create: {
+                        yt_video_id: cmt.videoId,
+                        emojis: cmt.emojis,
+                        comment: cmt.raw,
+                        hash: _hash_,
+                        mood: "",
+                      },
+                      update: {
+                        yt_video_id: cmt.videoId,
+                        emojis: cmt.emojis,
+                        comment: cmt.raw,
+                      },
+                    });
+                  })
+                );
+              })
+            );
+          })
+        );
         return response.data;
       } catch (err) {
         throw new TRPCError({
