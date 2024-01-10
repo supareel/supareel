@@ -13,7 +13,7 @@ import { Tooltip } from "~/components/ui/tooltip";
 function Sidebar() {
   return (
     <>
-      <div className="flex flex-col items-center bg-gray-800 h-screen sticky z-10 py-5 px-3">
+      <div className="flex flex-col items-center bg-gray-800 h-screen w-16 fixed z-20 py-5 px-3">
         <div className="pb-4 mb-4 border-b border-gray-400">
           <Avatar>
             <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />

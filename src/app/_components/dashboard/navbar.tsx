@@ -35,7 +35,7 @@ export function DashboardTopNavigation() {
   const { selectedChannel, ytChannelList, setSelectedChannel } =
     useSelectedYoutubeChannel();
 
-  const ytVideosSyncList = api.playlistItem.saveUserUploadedVideos.useQuery(
+  const ytVideosSyncList = api.video.saveUserUploadedVideos.useQuery(
     {
       userId: data?.user.id ?? "",
       ytChannelId: selectedChannel?.yt_channel_id ?? "",

@@ -13,9 +13,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { useSelectedYoutubeChannel } from "../context/youtubeChannel";
 import { useSession } from "next-auth/react";
 import { LOGIN } from "~/utils/route_names";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 export default function Dashboard() {
+  const router = useRouter();
   const { status, data: session } = useSession({
     required: true,
     onUnauthenticated() {
@@ -24,27 +25,29 @@ export default function Dashboard() {
   });
   const selectedChannel = useSelectedYoutubeChannel();
 
-  const ytChannelList = api.channel.ytChannelDetails.useQuery({
+  const ytVideosList = api.video.getUserUploadedVideos.useQuery({
     userId: session?.user.id ?? "",
+    ytChannelId: selectedChannel.selectedChannel?.yt_channel_id ?? "",
   });
 
-  const ytVideosList = api.playlistItem.getUserUploadedVideos.useQuery({
-    userId: session?.user.id ?? "",
-    ytChannelId: ytChannelList.data?.channels[0]?.yt_channel_id ?? "",
-  });
-
-  // TODO: remove this line
+  // TODO: remove with a loader component
   if (status === "loading") {
     return "Loading...";
   }
-  if (status == "authenticated")
+  if (status == "authenticated" && selectedChannel.ytChannelList?.channels)
     return (
       <div>
         <div className="grid grid-cols-4 gap-4 m-4">
           {ytVideosList.data?.map((videoMeta) => {
             return videoMeta.yt_channel_id ==
               selectedChannel.selectedChannel?.yt_channel_id ? (
-              <Card key={videoMeta.id}>
+              <Card
+                key={videoMeta.id}
+                className="cursor-pointer"
+                onClick={() =>
+                  router.push(`/dashboard/${videoMeta.yt_video_id}`)
+                }
+              >
                 <CardHeader className="relative h-44">
                   <Image
                     alt={"image for yt video"}
@@ -66,7 +69,7 @@ export default function Dashboard() {
                     <Avatar>
                       <AvatarImage
                         src={
-                          ytChannelList.data?.channels.find(
+                          selectedChannel.ytChannelList!.channels.find(
                             (chan) =>
                               chan.yt_channel_id == videoMeta.yt_channel_id
                           )?.yt_channel_thumbnails
@@ -75,9 +78,9 @@ export default function Dashboard() {
                       />
                       <AvatarFallback>C.N</AvatarFallback>
                     </Avatar>
-                    <p>
+                    <p className="text-slate-400">
                       {
-                        ytChannelList.data?.channels.find(
+                        selectedChannel.ytChannelList!.channels.find(
                           (chan) =>
                             chan.yt_channel_id == videoMeta.yt_channel_id
                         )?.yt_channel_title

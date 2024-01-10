@@ -1,7 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { youtubeRouter } from "./routers/yt_api";
 import { channelDetailsRouter } from "./routers/channel";
-import { playlistItemsRouter } from "./routers/playlistItem";
+import { videoRouter } from "./routers/video";
 
 /**
  * This is the primary router for your server.
@@ -11,7 +11,7 @@ import { playlistItemsRouter } from "./routers/playlistItem";
 export const appRouter = createTRPCRouter({
   youtube: youtubeRouter,
   channel: channelDetailsRouter,
-  playlistItem: playlistItemsRouter,
+  video: videoRouter,
 });
 
 // export type definition of API

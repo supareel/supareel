@@ -100,9 +100,11 @@ model YouTubeVideo {
 
 model YouTubeComments {
     id          String       @id @default(cuid())
+    hash        String       @unique
     ytVideoId   YouTubeVideo @relation(fields: [yt_video_id], references: [id])
     yt_video_id String
     comment     String       @db.LongText
+    mood        String
     emojis      String
 
     @@index([yt_video_id])

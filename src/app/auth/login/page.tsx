@@ -13,12 +13,7 @@ import { TopNavigation } from "~/app/_components/landing/navbar";
 // }
 
 export default function AuthenticationPage() {
-  const { status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      redirect(LOGIN);
-    },
-  });
+  const { status } = useSession();
   const searchParams = useSearchParams();
 
   if (status == "authenticated") redirect(DASHBOARD);

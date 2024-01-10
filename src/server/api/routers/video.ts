@@ -17,8 +17,15 @@ import {
   youtubePlaylistItemsOutput,
 } from "./playlistItem.types";
 import { separateEmojiFromText } from "~/utils/extract_emoji";
+import { generateCommentHash } from "~/utils/generate_hash";
+import { removeHtmlTags } from "~/utils/remove_html";
+import {
+  type SavedYtVideoOutput,
+  savedYtVideoInput,
+  savedYtVideoOutput,
+} from "~/server/api/routers/video.types";
 
-export const playlistItemsRouter = createTRPCRouter({
+export const videoRouter = createTRPCRouter({
   getUserUploadedVideos: publicProcedure
     .input(youtubePlaylistItemsInput)
     .output(youtubePlaylistItemsOutput)
@@ -37,14 +44,6 @@ export const playlistItemsRouter = createTRPCRouter({
     .output(ytPlaylistVideosApiResponse)
     .query(async ({ ctx, input }): Promise<YTPlaylistVideosApiResponse> => {
       const { userId, ytChannelId } = input;
-
-      console.log(
-        "============================================================="
-      );
-      console.log(input);
-      console.log(
-        "============================================================="
-      );
       try {
         const dbResponse: YouTubeChannelDetails =
           await ctx.db.youTubeChannelDetails.findFirstOrThrow({
@@ -119,14 +118,21 @@ export const playlistItemsRouter = createTRPCRouter({
           );
           // filter out all the comments
           comment_response.data.items.map(async (dat) => {
-            let comments: { text: string; videoId: string; emojis: string }[] =
-              [];
+            let comments: {
+              raw: string;
+              text: string;
+              videoId: string;
+              emojis: string;
+            }[] = [];
             const _textFiltered = separateEmojiFromText(
               dat.snippet.topLevelComment.snippet.textDisplay
             );
 
             comments = [
               {
+                raw: removeHtmlTags(
+                  dat.snippet.topLevelComment.snippet.textDisplay
+                ),
                 text: _textFiltered.text,
                 videoId: dat.snippet.videoId,
                 emojis: _textFiltered.emojis,
@@ -140,6 +146,7 @@ export const playlistItemsRouter = createTRPCRouter({
                     reply.snippet.textDisplay
                   );
                   return {
+                    raw: removeHtmlTags(reply.snippet.textDisplay),
                     text: _replyFiltered.text,
                     emojis: _replyFiltered.emojis,
                     videoId: reply.snippet.videoId,
@@ -149,19 +156,22 @@ export const playlistItemsRouter = createTRPCRouter({
 
             // save all comments
             comments.map(async (cmt) => {
+              const _hash_ = generateCommentHash(cmt.text);
               await ctx.db.youTubeComments.upsert({
                 where: {
-                  comment: cmt.text,
+                  hash: _hash_,
                 },
                 create: {
                   yt_video_id: cmt.videoId,
                   emojis: cmt.emojis,
-                  comment: cmt.text,
+                  comment: cmt.raw,
+                  hash: _hash_,
+                  mood: "",
                 },
                 update: {
                   yt_video_id: cmt.videoId,
                   emojis: cmt.emojis,
-                  comment: cmt.text,
+                  comment: cmt.raw,
                 },
               });
             });
@@ -175,5 +185,44 @@ export const playlistItemsRouter = createTRPCRouter({
           cause: err,
         });
       }
+    }),
+  ytVideoDetails: publicProcedure
+    .input(savedYtVideoInput)
+    .output(savedYtVideoOutput)
+    .query(async ({ ctx, input }): Promise<SavedYtVideoOutput> => {
+      const dbVideoResponse = await ctx.db.youTubeVideo.findFirstOrThrow({
+        where: {
+          yt_video_id: input.videoId,
+        },
+      });
+
+      const dbChannelResponse =
+        await ctx.db.youTubeChannelDetails.findFirstOrThrow({
+          where: {
+            yt_channel_id: dbVideoResponse.yt_channel_id,
+          },
+        });
+
+      const dbCommentsResponse = await ctx.db.youTubeComments.findMany({
+        where: {
+          yt_video_id: input.videoId,
+        },
+      });
+
+      return {
+        id: dbVideoResponse.id,
+        yt_channel: {
+          title: dbChannelResponse.yt_channel_title ?? "",
+          thumbnail: dbChannelResponse.yt_channel_thumbnails ?? "",
+        },
+        yt_video_description: dbVideoResponse.yt_video_description,
+        yt_video_id: dbVideoResponse.yt_video_id,
+        yt_video_thumbnail: dbVideoResponse.yt_video_thumbnail,
+        yt_video_title: dbVideoResponse.yt_video_title,
+        yt_video_comments: dbCommentsResponse.map((cmt) => ({
+          text: cmt.comment,
+          mood: cmt.mood,
+        })),
+      };
     }),
 });

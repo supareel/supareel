@@ -17,7 +17,7 @@ export const ytChannelDetailsDb = z.object({
   yt_channel_thumbnails: z.string(),
   yt_channel_customurl: z.string(),
   yt_channel_uploads_playlist_id: z.string(),
-  yt_channel_published_at: z.date(),
+  yt_channel_published_at: z.date().optional(),
   userId: z.string(),
   access_token: z.string(),
   refresh_token: z.string(),

@@ -12,11 +12,12 @@ export default function DashboardLayout({
   return (
     <SelectedYoutubeChannelProvider>
       <TooltipProvider>
-        <div className="flex">
+        <div className="h-screen flex">
           <Sidebar />
+          <div className="w-16" />
           <div className="w-full">
             <DashboardTopNavigation />
-            {children}
+            <div className="overflow-scroll">{children}</div>
           </div>
         </div>
       </TooltipProvider>
