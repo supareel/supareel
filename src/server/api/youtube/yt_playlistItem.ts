@@ -81,6 +81,10 @@ export const ytPlaylistVideosApiResponse = z.object({
         videoOwnerChannelTitle: z.string(),
         videoOwnerChannelId: z.string(),
       }),
+      contentDetails: z.object({
+        videoId: z.string(),
+        videoPublishedAt: z.string().datetime(),
+      }),
     })
   ),
   pageInfo: z.object({ totalResults: z.number(), resultsPerPage: z.number() }),

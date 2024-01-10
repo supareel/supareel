@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useTheme } from "next-themes";
-import { Label } from "~/components/ui/label";
 import { Switch } from "~/components/ui/switch";
 import { MoonIcon, SunIcon } from "lucide-react";
 

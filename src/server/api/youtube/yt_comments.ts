@@ -4,14 +4,14 @@ import { createYoutubeUrl } from "./utils";
 import { z } from "zod";
 
 export const getYTVideoCommentsApi = (
-  ytvideoIds: string[],
+  ytvideoId: string,
   access_token: string,
   part: string[]
 ): string => {
   const endpoint = "commentThreads";
   const queryString = qs.stringify({
     part: part.toString(),
-    videoId: ytvideoIds.toString(),
+    videoId: ytvideoId,
     key: env.YT_API_KEY,
     access_token: access_token,
   });

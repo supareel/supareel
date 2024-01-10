@@ -3,6 +3,7 @@ import HeroSection from "./_components/landing/heroSection";
 import TimelineElement from "./_components/landing/Timeline";
 import { work } from "~/data/work";
 import Footer from "./_components/footer";
+
 export default function Home() {
   return (
     <main>
@@ -33,10 +34,6 @@ export default function Home() {
       </div>
 
       <Footer />
-
-      {/* <h1 className="">Hello</h1>
-      {hello.greeting}
-      <Button variant="default">Button</Button> */}
     </main>
   );
 }

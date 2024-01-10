@@ -83,13 +83,16 @@ model YouTubeChannelDetails {
 }
 
 model YouTubeVideo {
-    id              String                @id @default(cuid())
-    yt_video_id     String                @unique
-    ytChannel       YouTubeChannelDetails @relation(fields: [yt_channel_id], references: [yt_channel_id])
-    yt_channel_id   String
-    User            User?                 @relation(fields: [user_id], references: [id])
-    user_id         String?
-    YouTubeComments YouTubeComments[]
+    id                   String                @id @default(cuid())
+    yt_video_id          String                @unique
+    ytChannel            YouTubeChannelDetails @relation(fields: [yt_channel_id], references: [yt_channel_id])
+    yt_channel_id        String
+    yt_video_title       String                @db.LongText
+    yt_video_description String                @db.LongText
+    yt_video_thumbnail   String                @db.LongText
+    User                 User?                 @relation(fields: [user_id], references: [id])
+    user_id              String?
+    YouTubeComments      YouTubeComments[]
 
     @@index([yt_channel_id])
     @@index([user_id])
@@ -97,9 +100,11 @@ model YouTubeVideo {
 
 model YouTubeComments {
     id          String       @id @default(cuid())
+    hash        String       @unique
     ytVideoId   YouTubeVideo @relation(fields: [yt_video_id], references: [id])
     yt_video_id String
-    text        String       @unique
+    comment     String       @db.LongText
+    mood        String
     emojis      String
 
     @@index([yt_video_id])

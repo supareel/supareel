@@ -1,25 +1,35 @@
-import qs from "querystring";
 import { env } from "~/env";
 import { oauth2Client } from "~/server/api/youtube/utils";
 import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
-import { error } from "console";
-import { getMyYTChannelDetailsApi } from "~/server/api/youtube/yt_channel";
+import {
+  type YoutubeChannelDetailsOuput,
+  getMyYTChannelDetailsApi,
+} from "~/server/api/youtube/yt_channel";
 import axios from "axios";
-import type { YoutubeChannelDetailsOuput } from "~/schema/youtube_api";
+import url from "url";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest, _: NextResponse) {
   try {
-    const redirectUrl = new URL("/api/youtube/callback?", env.CLIENT_BASE_URL);
-    const params = req.url?.replace(redirectUrl.toString(), "");
-    const data = qs.decode(params ?? "");
-    const code = data?.code ?? "";
-    const userEmail = decodeURIComponent(data?.state?.toString() ?? "");
+    const parsedUrl = url.parse(req.nextUrl.href, true);
+    const state = parsedUrl.query.state?.toString();
+    const code = parsedUrl.query.code?.toString();
+    const userEmail = decodeURIComponent(state?.toString() ?? "");
+
+    if (!code) {
+      throw new Error("Authorization code not found");
+    }
+
+    if (!state) {
+      throw new Error("state not found");
+    }
 
     const { tokens } = await oauth2Client.getToken(code.toString());
     // save tokens to user db
 
-    if (!tokens) throw error("tokens not found");
+    if (!tokens) throw Error("tokens not found");
 
     if (tokens != null && tokens != undefined) {
       const __url = getMyYTChannelDetailsApi(tokens.access_token ?? "", [
@@ -35,7 +45,7 @@ export async function GET(req: NextRequest, _: NextResponse) {
 
       const ytChannelDetails = response.data.items[0];
 
-      const data = await db.youTubeChannelDetails.upsert({
+      await db.youTubeChannelDetails.upsert({
         create: {
           yt_channel_id: ytChannelDetails?.id ?? "",
           yt_channel_title: ytChannelDetails?.snippet.title ?? "",

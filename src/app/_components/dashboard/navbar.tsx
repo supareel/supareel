@@ -19,9 +19,10 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { Button } from "~/components/ui/button";
-import { GearIcon } from "@radix-ui/react-icons";
+import { GearIcon, SymbolIcon, BorderDottedIcon } from "@radix-ui/react-icons";
 import { api } from "~/trpc/react";
 import YoutubeLogin from "../social/YoutubeLogin";
+import { useSelectedYoutubeChannel } from "~/app/context/youtubeChannel";
 
 export function DashboardTopNavigation() {
   const { status, data } = useSession({
@@ -31,16 +32,24 @@ export function DashboardTopNavigation() {
     },
   });
 
-  const ytChannelList = api.channel.ytChannelDetails.useQuery({
-    userId: data?.user.id ?? "",
-  });
-  const [position, setPosition] = React.useState(
-    ytChannelList.data?.channels[0]
+  const { selectedChannel, ytChannelList, setSelectedChannel } =
+    useSelectedYoutubeChannel();
+
+  const ytVideosSyncList = api.video.saveUserUploadedVideos.useQuery(
+    {
+      userId: data?.user.id ?? "",
+      ytChannelId: selectedChannel?.yt_channel_id ?? "",
+    },
+    {
+      enabled: false,
+      refetchOnMount: false,
+    }
   );
-  React.useEffect(
-    () => setPosition(ytChannelList.data?.channels[0]),
-    [ytChannelList.isFetched]
-  );
+
+  const handleYTVideosList = async () => {
+    // manually refetch
+    await ytVideosSyncList.refetch();
+  };
 
   return status == "authenticated" ? (
     <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 dark:bg-gray-950 bg-white border-b border-gray-100 dark:border-gray-900">
@@ -56,15 +65,15 @@ export function DashboardTopNavigation() {
             <Button variant="secondary" size="lg">
               <Avatar className="h-5 w-5 rounded-full mr-3">
                 <AvatarImage
-                  src={position?.yt_channel_thumbnails ?? ""}
+                  src={selectedChannel?.yt_channel_thumbnails ?? ""}
                   alt="@shadcn"
                 />
                 <AvatarFallback>
-                  {position?.yt_channel_title?.slice(0, 2).toUpperCase()}
+                  {selectedChannel?.yt_channel_title?.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <h4 className="text-gray-500 leading-5 capitalize">
-                {position?.yt_channel_title}
+                {selectedChannel?.yt_channel_title}
               </h4>
             </Button>
           </DropdownMenuTrigger>
@@ -73,18 +82,19 @@ export function DashboardTopNavigation() {
             <DropdownMenuSeparator />
 
             <DropdownMenuRadioGroup
-              value={position?.yt_channel_title}
-              onValueChange={(event) => {
-                const newChannelDataList = ytChannelList.data?.channels.filter(
+              value={selectedChannel?.yt_channel_title}
+              onValueChange={async (event) => {
+                const newChannelDataList = ytChannelList?.channels.filter(
                   (data) => data.yt_channel_title == event
                 );
                 if (newChannelDataList) {
                   const newChannelData = newChannelDataList[0];
-                  setPosition(newChannelData);
+                  setSelectedChannel(newChannelData);
+                  await handleYTVideosList();
                 }
               }}
             >
-              {ytChannelList.data?.channels.map((chan) => (
+              {ytChannelList?.channels.map((chan) => (
                 <DropdownMenuRadioItem value={chan.yt_channel_title ?? ""}>
                   <div className="gap-2 flex justify-between items-center">
                     <Avatar className="items-center h-8 w-8 rounded-full">
@@ -110,18 +120,25 @@ export function DashboardTopNavigation() {
               <GearIcon />
             </Button>
           </DropdownMenuTrigger>
+          <Button variant="outline" size="icon" onClick={handleYTVideosList}>
+            {ytVideosSyncList.isRefetching ? (
+              <BorderDottedIcon />
+            ) : (
+              <SymbolIcon />
+            )}
+          </Button>
           <DropdownMenuContent align="center" className="w-60">
             <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
-              value={position?.yt_channel_title}
+              value={selectedChannel?.yt_channel_title}
               onValueChange={(event) => {
-                const newChannelDataList = ytChannelList.data?.channels.filter(
+                const newChannelDataList = ytChannelList?.channels.filter(
                   (data) => data.yt_channel_title == event
                 );
                 if (newChannelDataList) {
                   const newChannelData = newChannelDataList[0];
-                  setPosition(newChannelData);
+                  setSelectedChannel(newChannelData);
                 }
               }}
             >

@@ -1,14 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "~/env";
-import qs from "querystring";
 import { oauth2Client } from "~/server/api/youtube/utils";
+import url from "url";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const redirectUrl = new URL("/api/youtube?", env.CLIENT_BASE_URL);
-    const params = req.url?.replace(redirectUrl.toString(), "");
-    const data = qs.decode(params ?? "");
-    const state = data?.state?.toString() ?? "";
+    const parsedUrl = url.parse(req.nextUrl.href, true);
+    const state = parsedUrl.query.state?.toString();
+    if (!state) {
+      throw new Error("state not found");
+    }
     // generate a url that asks permissions for Blogger and Google Calendar scopes
     const scopes = [
       "https://www.googleapis.com/auth/youtube.channel-memberships.creator",
@@ -25,6 +28,8 @@ export async function GET(req: NextRequest) {
       include_granted_scopes: true,
       state: encodeURIComponent(state),
     });
+
+    console.log(authorizationUrl);
 
     return NextResponse.redirect(authorizationUrl, 301);
   } catch (err) {

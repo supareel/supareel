@@ -3,7 +3,7 @@ import {
   type SavedYtChannelDetailsOutput,
   savedYtChannelDetailsInput,
   savedYtChannelDetailsOutput,
-} from "~/schema/youtube";
+} from "~/server/api/routers/channel.types";
 import type { YouTubeChannelDetails } from "@prisma/client";
 
 export const channelDetailsRouter = createTRPCRouter({

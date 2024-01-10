@@ -1,12 +1,12 @@
 import { createTRPCRouter, ytProtectedProcedure } from "~/server/api/trpc";
-import {
-  type YoutubeChannelDetailsOuput,
-  youtubeChannelDetailsInput,
-  youtubeChannelDetailsOutput,
-} from "~/schema/youtube_api";
+import { youtubeChannelDetailsInput } from "~/schema/youtube_api";
 import axios from "axios";
 import { TRPCError } from "@trpc/server";
-import { getYTChannelDetailsApi } from "../youtube/yt_channel";
+import {
+  type YoutubeChannelDetailsOuput,
+  getYTChannelDetailsApi,
+  youtubeChannelDetailsOutput,
+} from "../youtube/yt_channel";
 // import { getYTChannelUploadApi } from "../youtube/ytChannelUploads";
 
 export const youtubeRouter = createTRPCRouter({

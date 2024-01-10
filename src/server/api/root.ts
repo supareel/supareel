@@ -1,8 +1,7 @@
-import { postRouter } from "~/server/api/routers/post";
 import { createTRPCRouter } from "~/server/api/trpc";
 import { youtubeRouter } from "./routers/yt_api";
 import { channelDetailsRouter } from "./routers/channel";
-import { playlistItemsRouter } from "./routers/playlistItem";
+import { videoRouter } from "./routers/video";
 
 /**
  * This is the primary router for your server.
@@ -10,10 +9,9 @@ import { playlistItemsRouter } from "./routers/playlistItem";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  post: postRouter,
   youtube: youtubeRouter,
   channel: channelDetailsRouter,
-  playlistItem: playlistItemsRouter,
+  video: videoRouter,
 });
 
 // export type definition of API

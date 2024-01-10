@@ -13,10 +13,9 @@ import { TopNavigation } from "~/app/_components/landing/navbar";
 // }
 
 export default function AuthenticationPage() {
-  const { status, data } = useSession();
+  const { status } = useSession();
   const searchParams = useSearchParams();
 
-  console.log(`session : ${JSON.stringify(data)}, status: ${status}`);
   if (status == "authenticated") redirect(DASHBOARD);
   if (searchParams.get("error"))
     redirect(
