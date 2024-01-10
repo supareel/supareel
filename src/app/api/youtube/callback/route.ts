@@ -5,20 +5,19 @@ import { NextResponse, type NextRequest } from "next/server";
 import { db } from "~/server/db";
 import { error } from "console";
 import {
-  YoutubeChannelDetailsOuput,
+  type YoutubeChannelDetailsOuput,
   getMyYTChannelDetailsApi,
 } from "~/server/api/youtube/yt_channel";
 import axios from "axios";
 
 export async function GET(req: NextRequest, _: NextResponse) {
   try {
-    const redirectUrl = new URL("/api/youtube/callback?", env.CLIENT_BASE_URL);
-    const params = req.url?.replace(redirectUrl.toString(), "");
-    const data = qs.decode(params ?? "");
-    const code = data?.code ?? "";
-    const userEmail = decodeURIComponent(data?.state?.toString() ?? "");
+    const params = req.nextUrl.searchParams;
+    const state = params.get("state");
+    const code = params.get("code");
+    const userEmail = decodeURIComponent(state?.toString() ?? "");
 
-    const { tokens } = await oauth2Client.getToken(code.toString());
+    const { tokens } = await oauth2Client.getToken(code!.toString());
     // save tokens to user db
 
     if (!tokens) throw error("tokens not found");

@@ -5,10 +5,9 @@ import { oauth2Client } from "~/server/api/youtube/utils";
 
 export async function GET(req: NextRequest) {
   try {
-    const redirectUrl = new URL("/api/youtube?", env.CLIENT_BASE_URL);
-    const params = req.url?.replace(redirectUrl.toString(), "");
-    const data = qs.decode(params ?? "");
-    const state = data?.state?.toString() ?? "";
+    const params = req.nextUrl.searchParams;
+
+    const state = params.get("state") ?? "";
     // generate a url that asks permissions for Blogger and Google Calendar scopes
     const scopes = [
       "https://www.googleapis.com/auth/youtube.channel-memberships.creator",
