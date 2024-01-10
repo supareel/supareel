@@ -11,11 +11,17 @@ import {
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { useSelectedYoutubeChannel } from "../context/youtubeChannel";
-import { useUserSession } from "../context/userSession";
+import { useSession } from "next-auth/react";
+import { LOGIN } from "~/utils/route_names";
+import { redirect } from "next/navigation";
 
 export default function Dashboard() {
-  const { status, session } = useUserSession();
-
+  const { status, data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect(LOGIN);
+    },
+  });
   const selectedChannel = useSelectedYoutubeChannel();
 
   const ytChannelList = api.channel.ytChannelDetails.useQuery({

@@ -2,8 +2,10 @@ import { createContext, useState, useEffect, useContext } from "react";
 import type { SetStateAction, Dispatch } from "react";
 import type { YtChannelDetailsDb } from "~/schema/db";
 import { api } from "~/trpc/react";
-import { useUserSession } from "./userSession";
 import { type SavedYtChannelDetailsOutput } from "~/schema/youtube";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { LOGIN } from "~/utils/route_names";
 interface ISelectedYoutubeChannel {
   selectedChannel: YtChannelDetailsDb | undefined;
   setSelectedChannel: Dispatch<SetStateAction<YtChannelDetailsDb | undefined>>;
@@ -31,7 +33,12 @@ export function SelectedYoutubeChannelProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { session } = useUserSession();
+  const { status, data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect(LOGIN);
+    },
+  });
   const [selectedChannel, setSelectedChannel] = useState<YtChannelDetailsDb>();
 
   const { data: ytChannelList, isFetched } =

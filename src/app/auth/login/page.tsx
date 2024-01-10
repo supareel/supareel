@@ -4,7 +4,7 @@ import { redirect, useSearchParams } from "next/navigation";
 
 import { UserAuthLoginForm } from "~/app/_components/auth/user-auth-form";
 import { useSession } from "next-auth/react";
-import { AUTHERROR, DASHBOARD } from "~/utils/route_names";
+import { AUTHERROR, DASHBOARD, LOGIN } from "~/utils/route_names";
 import { TopNavigation } from "~/app/_components/landing/navbar";
 
 // export const metadata: Metadata = {
@@ -13,10 +13,14 @@ import { TopNavigation } from "~/app/_components/landing/navbar";
 // }
 
 export default function AuthenticationPage() {
-  const { status, data } = useSession();
+  const { status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect(LOGIN);
+    },
+  });
   const searchParams = useSearchParams();
 
-  console.log(`session : ${JSON.stringify(data)}, status: ${status}`);
   if (status == "authenticated") redirect(DASHBOARD);
   if (searchParams.get("error"))
     redirect(

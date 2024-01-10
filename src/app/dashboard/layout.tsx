@@ -1,23 +1,8 @@
 "use client";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
-import SidebarOptionsButton from "../_components/dashboard/sidebarOptionButton";
-import {
-  HomeIcon,
-  ChevronRight,
-  BlocksIcon,
-  CalendarDaysIcon,
-  UsersIcon,
-} from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { TooltipProvider } from "~/components/ui/tooltip";
 import { DashboardTopNavigation } from "../_components/dashboard/navbar";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import SideBarSlide from "../_components/dashboard/sideBarSlide";
 import Sidebar from "../_components/dashboard/sidebar";
+import { SelectedYoutubeChannelProvider } from "../context/youtubeChannel";
 
 export default function DashboardLayout({
   children,
@@ -25,14 +10,16 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <TooltipProvider>
-      <div className="flex">
-        <Sidebar />
-        <div className="w-full">
-          <DashboardTopNavigation />
-          {children}
+    <SelectedYoutubeChannelProvider>
+      <TooltipProvider>
+        <div className="flex">
+          <Sidebar />
+          <div className="w-full">
+            <DashboardTopNavigation />
+            {children}
+          </div>
         </div>
-      </div>
-    </TooltipProvider>
+      </TooltipProvider>
+    </SelectedYoutubeChannelProvider>
   );
 }
