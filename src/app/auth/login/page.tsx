@@ -4,7 +4,7 @@ import { redirect, useSearchParams } from "next/navigation";
 
 import { UserAuthLoginForm } from "~/app/_components/auth/user-auth-form";
 import { useSession } from "next-auth/react";
-import { AUTHERROR, DASHBOARD, LOGIN } from "~/utils/route_names";
+import { AUTHERROR, DASHBOARD } from "~/utils/route_names";
 import { TopNavigation } from "~/app/_components/landing/navbar";
 
 // export const metadata: Metadata = {

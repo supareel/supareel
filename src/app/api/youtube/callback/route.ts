@@ -7,12 +7,15 @@ import {
   getMyYTChannelDetailsApi,
 } from "~/server/api/youtube/yt_channel";
 import axios from "axios";
+import url from "url";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest, _: NextResponse) {
   try {
-    const params = req.nextUrl.searchParams;
-    const state = params.get("state");
-    const code = params.get("code");
+    const parsedUrl = url.parse(req.nextUrl.href, true);
+    const state = parsedUrl.query.state?.toString();
+    const code = parsedUrl.query.code?.toString();
     const userEmail = decodeURIComponent(state?.toString() ?? "");
 
     if (!code) {
@@ -42,7 +45,7 @@ export async function GET(req: NextRequest, _: NextResponse) {
 
       const ytChannelDetails = response.data.items[0];
 
-      const data = await db.youTubeChannelDetails.upsert({
+      await db.youTubeChannelDetails.upsert({
         create: {
           yt_channel_id: ytChannelDetails?.id ?? "",
           yt_channel_title: ytChannelDetails?.snippet.title ?? "",

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { RedirectType, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { LOGIN } from "~/utils/route_names";
 

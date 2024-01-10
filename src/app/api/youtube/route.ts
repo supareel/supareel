@@ -1,11 +1,14 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "~/env";
 import { oauth2Client } from "~/server/api/youtube/utils";
+import url from "url";
+
+export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
-    const params = req.nextUrl.searchParams;
-    const state = params.get("state") ?? "";
+    const parsedUrl = url.parse(req.nextUrl.href, true);
+    const state = parsedUrl.query.state?.toString();
     if (!state) {
       throw new Error("state not found");
     }

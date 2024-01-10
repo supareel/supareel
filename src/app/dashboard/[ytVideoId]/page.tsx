@@ -16,7 +16,7 @@ export default function VideoDetails({
 }: {
   params: { ytVideoId: string };
 }) {
-  const { status, data: session } = useSession({
+  const { status } = useSession({
     required: true,
     onUnauthenticated() {
       redirect(LOGIN);
