@@ -35,7 +35,7 @@ export function DashboardTopNavigation() {
   const { selectedChannel, ytChannelList, setSelectedChannel } =
     useSelectedYoutubeChannel();
 
-  const ytVideosSyncList = api.video.saveUserUploadedVideos.useQuery(
+  const ytVideosSyncList = api.video.syncMyUploadedVideos.useQuery(
     {
       userId: data?.user.id ?? "",
       ytChannelId: selectedChannel?.yt_channel_id ?? "",
@@ -115,18 +115,24 @@ export function DashboardTopNavigation() {
 
         {/* settings */}
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon">
-              <GearIcon />
-            </Button>
-          </DropdownMenuTrigger>
-          <Button variant="outline" size="icon" onClick={handleYTVideosList}>
+          <Button
+            variant="outline"
+            className="gap-2"
+            disabled={ytVideosSyncList.isRefetching}
+            onClick={handleYTVideosList}
+          >
             {ytVideosSyncList.isRefetching ? (
               <BorderDottedIcon />
             ) : (
               <SymbolIcon />
             )}
+            Sync YouTube Videos
           </Button>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="icon">
+              <GearIcon />
+            </Button>
+          </DropdownMenuTrigger>
           <DropdownMenuContent align="center" className="w-60">
             <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
             <DropdownMenuSeparator />

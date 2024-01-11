@@ -20,9 +20,12 @@ import { separateEmojiFromText } from "~/utils/extract_emoji";
 import { generateCommentHash } from "~/utils/generate_hash";
 import { removeHtmlTags } from "~/utils/remove_html";
 import {
-  type SavedYtVideoOutput,
   savedYtVideoInput,
   savedYtVideoOutput,
+  syncVideoCommentsInput,
+  syncVideoCommentsOutput,
+  type SyncVideoCommentsOutput,
+  type SavedYtVideoOutput,
 } from "~/server/api/routers/video.types";
 
 export const videoRouter = createTRPCRouter({
@@ -39,7 +42,7 @@ export const videoRouter = createTRPCRouter({
         });
       return dbSavedYtVideosResponse;
     }),
-  saveUserUploadedVideos: publicProcedure
+  syncMyUploadedVideos: publicProcedure
     .input(youtubePlaylistItemsInput)
     .output(ytPlaylistVideosApiResponse)
     .query(async ({ ctx, input }): Promise<YTPlaylistVideosApiResponse> => {
@@ -93,97 +96,6 @@ export const videoRouter = createTRPCRouter({
           })
         );
 
-        const dbSavedYtVideosResponse: YouTubeVideo[] =
-          await ctx.db.youTubeVideo.findMany({
-            where: {
-              yt_channel_id: ytChannelId,
-            },
-          });
-
-        const userChannelVideosId = dbSavedYtVideosResponse.map((e) =>
-          String(e.yt_video_id)
-        );
-
-        await Promise.all(
-          userChannelVideosId.map(async (ytVidId) => {
-            const __comments_url = getYTVideoCommentsApi(
-              ytVidId,
-              dbResponse.access_token,
-              ["snippet", "replies"]
-            );
-            // get comments for all videos
-            const comment_response =
-              await axios.get<YTVideoCommentsApiResponse>(__comments_url, {
-                headers: {
-                  Authorization: `Bearer ${ctx.ytChannel?.access_token}`,
-                },
-              });
-            // filter out all the comments
-            await Promise.all(
-              comment_response.data.items.map(async (dat) => {
-                let comments: {
-                  raw: string;
-                  text: string;
-                  videoId: string;
-                  emojis: string;
-                }[] = [];
-                const _textFiltered = separateEmojiFromText(
-                  dat.snippet.topLevelComment.snippet.textDisplay
-                );
-
-                comments = [
-                  {
-                    raw: removeHtmlTags(
-                      dat.snippet.topLevelComment.snippet.textDisplay
-                    ),
-                    text: _textFiltered.text,
-                    videoId: dat.snippet.videoId,
-                    emojis: _textFiltered.emojis,
-                  },
-                ];
-
-                if (dat.replies)
-                  comments.push(
-                    ...dat.replies.comments.map((reply) => {
-                      const _replyFiltered = separateEmojiFromText(
-                        reply.snippet.textDisplay
-                      );
-                      return {
-                        raw: removeHtmlTags(reply.snippet.textDisplay),
-                        text: _replyFiltered.text,
-                        emojis: _replyFiltered.emojis,
-                        videoId: reply.snippet.videoId,
-                      };
-                    })
-                  );
-
-                // save all comments
-                await Promise.all(
-                  comments.map(async (cmt) => {
-                    const _hash_ = generateCommentHash(cmt.text);
-                    await ctx.db.youTubeComments.upsert({
-                      where: {
-                        hash: _hash_,
-                      },
-                      create: {
-                        yt_video_id: cmt.videoId,
-                        emojis: cmt.emojis,
-                        comment: cmt.raw,
-                        hash: _hash_,
-                        mood: "",
-                      },
-                      update: {
-                        yt_video_id: cmt.videoId,
-                        emojis: cmt.emojis,
-                        comment: cmt.raw,
-                      },
-                    });
-                  })
-                );
-              })
-            );
-          })
-        );
         return response.data;
       } catch (err) {
         throw new TRPCError({
@@ -193,6 +105,7 @@ export const videoRouter = createTRPCRouter({
         });
       }
     }),
+
   ytVideoDetails: publicProcedure
     .input(savedYtVideoInput)
     .output(savedYtVideoOutput)
@@ -231,5 +144,166 @@ export const videoRouter = createTRPCRouter({
           mood: cmt.mood,
         })),
       };
+    }),
+  syncVideoComments: publicProcedure
+    .input(syncVideoCommentsInput)
+    .output(syncVideoCommentsOutput)
+    .query(async ({ ctx, input }): Promise<SyncVideoCommentsOutput> => {
+      const { videoId, accessToken } = input;
+
+      try {
+        const __comments_url = getYTVideoCommentsApi(videoId, accessToken, [
+          "snippet",
+          "replies",
+        ]);
+
+        // get comments for all videos
+        const comment_response = await axios.get<YTVideoCommentsApiResponse>(
+          __comments_url,
+          {
+            headers: {
+              Authorization: `Bearer ${ctx.ytChannel?.access_token}`,
+            },
+          }
+        );
+        // filter out all the comments
+        const comments: {
+          authorDisplayName: string;
+          authorChannelUrl: string;
+          authorChannelId: string;
+          emojis: string;
+          comment: string;
+          hash: string;
+          mood: string;
+          authorProfilePic: string;
+          videoId: string;
+        }[] = comment_response.data.items.flatMap((dat) => {
+          let _comments_: {
+            authorDisplayName: string;
+            authorChannelUrl: string;
+            authorChannelId: string;
+            emojis: string;
+            comment: string;
+            hash: string;
+            mood: string;
+            authorProfilePic: string;
+            videoId: string;
+          }[] = [];
+          const _textFiltered = separateEmojiFromText(
+            dat.snippet.topLevelComment.snippet.textDisplay
+          );
+          const _hash_ = generateCommentHash(_textFiltered.text);
+
+          _comments_ = [
+            {
+              comment: removeHtmlTags(
+                dat.snippet.topLevelComment.snippet.textDisplay
+              ),
+              hash: _hash_,
+              emojis: _textFiltered.emojis,
+              authorDisplayName:
+                dat.snippet.topLevelComment.snippet.authorDisplayName,
+              authorChannelId:
+                dat.snippet.topLevelComment.snippet.authorChannelId.value,
+              authorChannelUrl:
+                dat.snippet.topLevelComment.snippet.authorChannelUrl,
+              authorProfilePic:
+                dat.snippet.topLevelComment.snippet.authorProfileImageUrl,
+              mood: "",
+              videoId: dat.snippet.videoId,
+            },
+          ];
+
+          if (dat.replies)
+            _comments_.push(
+              ...dat.replies.comments.map((reply) => {
+                const _replyFiltered = separateEmojiFromText(
+                  reply.snippet.textDisplay
+                );
+                const _replyFilteredText = removeHtmlTags(
+                  reply.snippet.textDisplay
+                );
+                const _hash_ = generateCommentHash(_replyFiltered.text);
+
+                return {
+                  comment: _replyFilteredText,
+                  emojis: _replyFiltered.emojis,
+                  hash: _hash_,
+                  mood: "",
+                  videoId: reply.snippet.videoId,
+                  authorProfilePic: reply.snippet.authorProfileImageUrl,
+                  authorDisplayName: reply.snippet.authorDisplayName,
+                  authorChannelId: reply.snippet.authorChannelId.value,
+                  authorChannelUrl: reply.snippet.authorChannelUrl,
+                  authorProfileImageUrl: reply.snippet.authorProfileImageUrl,
+                };
+              })
+            );
+
+          return _comments_;
+        });
+
+        console.log(
+          "==========================================================="
+        );
+        console.log(
+          comments.map((c) => c.comment),
+          "\n"
+        );
+        console.log(
+          "==========================================================="
+        );
+        // save all comments
+        const ___data = await Promise.all(
+          comments.map(async (cmt) => {
+            return await ctx.db.youTubeComments.upsert({
+              where: {
+                hash: cmt.hash,
+              },
+              create: {
+                yt_video_id: cmt.videoId,
+                emojis: cmt.emojis,
+                comment: cmt.comment,
+                hash: cmt.hash,
+                mood: cmt.mood,
+                author_display_name: cmt.authorDisplayName,
+                author_profile_pic: cmt.authorProfilePic,
+                author_channel_url: cmt.authorChannelUrl,
+                author_channel_id: cmt.authorChannelId,
+              },
+              update: {
+                emojis: cmt.emojis,
+                comment: cmt.comment,
+                hash: cmt.hash,
+                mood: cmt.mood,
+                author_display_name: cmt.authorDisplayName,
+                author_profile_pic: cmt.authorProfilePic,
+                author_channel_url: cmt.authorChannelUrl,
+                author_channel_id: cmt.authorChannelId,
+              },
+            });
+          })
+        );
+
+        const response: SyncVideoCommentsOutput = ___data.map((data) => {
+          return {
+            comment: data.comment,
+            mood: data.mood,
+            emojis: data.emojis,
+            hash: data.hash,
+            authorChannelId: data.author_channel_id,
+            authorChannelUrl: data.author_channel_url,
+            authorDisplayName: data.author_display_name,
+            authorProfilePic: data.author_profile_pic,
+          };
+        });
+        return response;
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "unable to get youtube videos for this channel",
+          cause: err,
+        });
+      }
     }),
 });

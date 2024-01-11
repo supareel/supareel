@@ -10,6 +10,9 @@ import { AvatarFallback } from "@radix-ui/react-avatar";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { CommentTable } from "~/app/_components/dashboard/commentTable";
+import { Button } from "~/components/ui/button";
+import { BorderDottedIcon, SymbolIcon } from "@radix-ui/react-icons";
+import { useSelectedYoutubeChannel } from "~/app/context/youtubeChannel";
 
 export default function VideoDetails({
   params,
@@ -23,10 +26,27 @@ export default function VideoDetails({
     },
   });
 
+  const ytChannel = useSelectedYoutubeChannel();
+
   const ytVideosDetail = api.video.ytVideoDetails.useQuery({
     videoId: params.ytVideoId,
   });
 
+  const ytVideosCommentList = api.video.syncVideoComments.useQuery(
+    {
+      videoId: params.ytVideoId ?? "",
+      accessToken: ytChannel.selectedChannel?.access_token ?? "",
+    },
+    {
+      enabled: false,
+      refetchOnMount: false,
+    }
+  );
+
+  const handleYTVideosCommentList = async () => {
+    // manually refetch
+    await ytVideosCommentList.refetch();
+  };
   // TODO: remove with a loader component
   if (status === "loading") {
     return "Loading...";
@@ -68,6 +88,20 @@ export default function VideoDetails({
             <p className="capitalize">Rating: 4.5/5</p>
             <p className="capitalize">User Emotion average: 4.5/5</p>
             <p className="capitalize">Story Telling points: 4.5/5</p>
+            <Button
+              variant="outline"
+              className="gap-2"
+              size="lg"
+              disabled={ytVideosCommentList.isRefetching}
+              onClick={handleYTVideosCommentList}
+            >
+              {ytVideosCommentList.isRefetching ? (
+                <BorderDottedIcon />
+              ) : (
+                <SymbolIcon />
+              )}
+              Sync video comments
+            </Button>
           </div>
         </div>
         <Separator className="my-8" />

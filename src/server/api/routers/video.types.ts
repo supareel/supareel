@@ -1,4 +1,6 @@
 import z from "zod";
+
+// ------------------------------- ytVideoDetails --------------------------------------------
 export const savedYtVideoInput = z.object({
   videoId: z.string(),
 });
@@ -24,3 +26,27 @@ export const savedYtVideoOutput = z.object({
 });
 
 export type SavedYtVideoOutput = z.TypeOf<typeof savedYtVideoOutput>;
+
+// ------------------------------- syncVideoComments --------------------------------------------
+
+export const syncVideoCommentsInput = z.object({
+  videoId: z.string(),
+  accessToken: z.string(),
+});
+
+export type SyncVideoCommentsInput = z.TypeOf<typeof syncVideoCommentsInput>;
+
+export const syncVideoCommentsOutput = z.array(
+  z.object({
+    emojis: z.string(),
+    comment: z.string(),
+    hash: z.string(),
+    mood: z.string(),
+    authorDisplayName: z.string(),
+    authorProfilePic: z.string(),
+    authorChannelUrl: z.string(),
+    authorChannelId: z.string(),
+  })
+);
+
+export type SyncVideoCommentsOutput = z.TypeOf<typeof syncVideoCommentsOutput>;
