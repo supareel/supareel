@@ -639,17 +639,17 @@
   dependencies:
     tslib "^2.4.0"
 
-"@t3-oss/env-core@0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@t3-oss/env-core/-/env-core-0.7.1.tgz#5e0568203d539bb2a35c96f02d33b6e204a194e5"
-  integrity sha512-3+SQt39OlmSaRLqYVFv8uRm1BpFepM5TIiMytRqO9cjH+wB77o6BIJdeyM5h5U4qLBMEzOJWCY4MBaU/rLwbYw==
+"@t3-oss/env-core@0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@t3-oss/env-core/-/env-core-0.7.3.tgz#b81b4a123bd840c1c11943b0a57d02cd32d5a6c2"
+  integrity sha512-hhtj59TKC6TKVdwJ0CcbKsvkr9R8Pc/SNKd4IgGUIC9T9X6moB8EZZ3FTJdABA/h9UABCK4J+KsF8gzmvMvHPg==
 
-"@t3-oss/env-nextjs@^0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@t3-oss/env-nextjs/-/env-nextjs-0.7.1.tgz#556a49382d22c190e5f9900e703679107cac483e"
-  integrity sha512-tQDbNLGCOvKGi+JoGuJ/CJInJI7/kLWJqtgGppAKS7ZFLdVOqZYR/uRjxlXOWPnxmUKF8VswOAsq7fXUpNZDhA==
+"@t3-oss/env-nextjs@^0.7.3":
+  version "0.7.3"
+  resolved "https://registry.yarnpkg.com/@t3-oss/env-nextjs/-/env-nextjs-0.7.3.tgz#b5813a2bbe932fd0a868a2c4d7d816a60bdb4f92"
+  integrity sha512-90TNffS17vjkQwfYyMUb4Zw9yqHwFV40f78qFug4JiQa5+N6DydTdlLOpzOcj8Cna/qpAVDwMSypofF/TVQDuA==
   dependencies:
-    "@t3-oss/env-core" "0.7.1"
+    "@t3-oss/env-core" "0.7.3"
 
 "@tanstack/query-core@4.36.1":
   version "4.36.1"
@@ -2510,6 +2510,7 @@ streamsearch@^1.1.0:
   integrity sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==
 
 "string-width-cjs@npm:string-width@^4.2.0", string-width@^4.1.0:
+  name string-width-cjs
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010"
   integrity sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g==
