@@ -1,6 +1,5 @@
 import z from "zod";
 
-// ------------------------------- ytVideoDetails --------------------------------------------
 export const savedYtVideoInput = z.object({
   videoId: z.string(),
 });
@@ -40,7 +39,7 @@ export const syncVideoCommentsOutput = z.array(
   z.object({
     emojis: z.string(),
     comment: z.string(),
-    hash: z.string(),
+    commentId: z.string(),
     mood: z.string(),
     authorDisplayName: z.string(),
     authorProfilePic: z.string(),

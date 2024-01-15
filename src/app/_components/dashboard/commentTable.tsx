@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -14,30 +15,39 @@ export function CommentTable({
   comments: { text: string; mood: string }[] | undefined;
 }) {
   return (
-    <div className="m-6">
-      <Table>
-        <TableCaption>A comments list</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Text</TableHead>
-            <TableHead className="w-[100px]">Mood</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {comments?.map((cmt, index) => (
-            <TableRow key={index}>
-              <TableCell className="font-medium">{cmt.text}</TableCell>
-              <TableCell>{cmt.mood}</TableCell>
+    <>
+      <div className="m-6">
+        <Table>
+          <TableCaption>A comments list</TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Text</TableHead>
+              <TableHead className="w-[100px]">Mood</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-        {/* <TableFooter>
+          </TableHeader>
+          <TableBody>
+            {comments?.map((cmt, index) => (
+              <TableRow key={index}>
+                <TableCell className="font-medium">{cmt.text}</TableCell>
+                <TableCell>
+                  {cmt.mood == "neutral"
+                    ? "😐  "
+                    : cmt.mood == "positive"
+                    ? "😀  "
+                    : "😡  "}
+                  {cmt.mood}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          {/* <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
             <TableCell className="text-right">$2,500.00</TableCell>
           </TableRow>
         </TableFooter> */}
-      </Table>
-    </div>
+        </Table>
+      </div>
+    </>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { LOGIN } from "~/utils/route_names";
 import { redirect, useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { api as serverapi } from "~/trpc/server";
+import { PieChart, Pie, Sector, Tooltip, Legend, Cell } from "recharts";
 
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
@@ -30,13 +31,31 @@ export default function VideoDetails({
     },
   });
 
-  const router = useRouter();
-
   const ytChannel = useSelectedYoutubeChannel();
 
   const ytVideosDetail = api.video.ytVideoDetails.useQuery({
     videoId: params.ytVideoId,
   });
+
+  const [chartData, setChartData] = useState<
+    { name: string; value: number; color: string }[]
+  >([
+    {
+      name: "Neutral",
+      value: 0,
+      color: "#EAEAEA",
+    },
+    {
+      name: "Positive",
+      value: 0,
+      color: "#00C49F",
+    },
+    {
+      name: "Negative",
+      value: 0,
+      color: "#F94449",
+    },
+  ]);
 
   const ytVideosCommentList = api.video.syncVideoComments.useQuery(
     {
@@ -48,6 +67,46 @@ export default function VideoDetails({
       refetchOnMount: false,
     }
   );
+
+  const findPercent = (array: string[], match: string): number => {
+    const total = array.length;
+    const count = array.filter((curr) => curr === match).length;
+    return (count / total) * 100;
+  };
+
+  useEffect(() => {
+    if (ytVideosDetail?.data) {
+      setChartData([
+        {
+          name: "Neutral",
+          value: findPercent(
+            ytVideosDetail?.data?.yt_video_comments.map((dat) => dat.mood) ??
+              [],
+            "neutral"
+          ),
+          color: "#eaeaea",
+        },
+        {
+          name: "Positive",
+          value: findPercent(
+            ytVideosDetail?.data?.yt_video_comments.map((dat) => dat.mood) ??
+              [],
+            "positive"
+          ),
+          color: "#00C49F",
+        },
+        {
+          name: "Negative",
+          value: findPercent(
+            ytVideosDetail?.data?.yt_video_comments.map((dat) => dat.mood) ??
+              [],
+            "negative"
+          ),
+          color: "#F94449",
+        },
+      ]);
+    }
+  }, [ytVideosDetail?.data]);
 
   const handleYTVideosCommentList = async () => {
     // manually refetch
@@ -109,13 +168,59 @@ export default function VideoDetails({
                 {ytVideosDetail.data?.yt_channel.title}
               </Badge>
             </div>
-            <p className="capitalize">Views: 4.5/5</p>
+            {/* <p className="capitalize">Views: 4.5/5</p>
             <p className="capitalize">Likes: 4.5/5</p>
             <p className="capitalize">Comments: 4.5/5</p>
 
             <p className="capitalize">Rating: 4.5/5</p>
             <p className="capitalize">User Emotion average: 4.5/5</p>
-            <p className="capitalize">Story Telling points: 4.5/5</p>
+            <p className="capitalize">Story Telling points: 4.5/5</p> */}
+            <div className="flex">
+              <PieChart width={400} height={200}>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={74}
+                  fill="#8884d8"
+                  dataKey="value"
+                  legendType="circle"
+                  label
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      name={entry.name}
+                    />
+                  ))}
+                  <Tooltip />
+                </Pie>
+              </PieChart>
+              <div className="flex flex-col justify-center items-start">
+                <div className="flex justify-center items-center gap-4">
+                  <div
+                    className="h-4 w-4 border-zinc-300 border-2"
+                    style={{ backgroundColor: "#00C49F" }}
+                  ></div>
+                  Positive mood
+                </div>
+                <div className="flex justify-center items-center gap-4">
+                  <div
+                    className="h-4 w-4 border-zinc-300 border-2"
+                    style={{ backgroundColor: "#eaeaea" }}
+                  ></div>
+                  Neutral mood
+                </div>
+                <div className="flex justify-center items-center gap-4">
+                  <div
+                    className="h-4 w-4 border-zinc-300 border-2"
+                    style={{ backgroundColor: "#F94449" }}
+                  ></div>
+                  Negative mood
+                </div>
+              </div>
+            </div>
             <Button
               variant="outline"
               className="gap-2"

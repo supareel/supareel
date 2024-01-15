@@ -100,7 +100,7 @@ model YouTubeVideo {
 
 model YouTubeComments {
     id                  String       @id @default(cuid())
-    hash                String       @unique
+    yt_comment_id       String       @unique
     author_display_name String
     author_profile_pic  String
     author_channel_url  String

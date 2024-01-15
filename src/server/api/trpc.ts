@@ -14,6 +14,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { connectMindsDB } from "../mindsdb";
 
 /**
  * 1. CONTEXT
@@ -43,6 +44,8 @@ export const createTRPCContext = async (opts: { headers: Headers }) => {
     yt_channel_title: "",
     yt_channel_uploads_playlist_id: "",
   };
+
+  await connectMindsDB();
 
   return {
     db,

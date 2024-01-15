@@ -52,8 +52,7 @@ export function DashboardTopNavigation() {
   };
 
   return status == "authenticated" ? (
-    // dark:bg-gray-950 bg-white
-    <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 bg-transparent border-b border-gray-100 dark:border-gray-900">
+    <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 border-b dark:bg-gray-950 bg-white border-gray-100 dark:border-gray-900">
       <div>
         <h4 className="text-xl font-bold italic text-orange-500">SupaReel</h4>
       </div>

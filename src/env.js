@@ -14,6 +14,11 @@ export const env = createEnv({
         (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
         "You forgot to change the default URL"
       ),
+    DATABASE_HOST: z.string(),
+    DATABASE_USER: z.string(),
+    DATABASE_PASSWORD: z.string(),
+    DATABASE_PORT: z.string(),
+    DATABASE_NAME: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -44,6 +49,8 @@ export const env = createEnv({
     // EMAIL_SERVER_HOST: z.string(),
     // EMAIL_SERVER_PORT: z.string(),
     // EMAIL_FROM: z.string().email()
+
+    MINDSDB_HOST_URL: z.string(),
   },
 
   /**
@@ -61,6 +68,11 @@ export const env = createEnv({
    */
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
+    DATABASE_HOST: process.env.DATABASE_HOST,
+    DATABASE_USER: process.env.DATABASE_USER,
+    DATABASE_PASSWORD: process.env.DATABASE_PASSWORD,
+    DATABASE_PORT: process.env.DATABASE_PORT,
+    DATABASE_NAME: process.env.DATABASE_NAME,
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
@@ -79,6 +91,7 @@ export const env = createEnv({
     // EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST,
     // EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
     // EMAIL_FROM: process.env.EMAIL_FROM
+    MINDSDB_HOST_URL: process.env.MINDSDB_HOST_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

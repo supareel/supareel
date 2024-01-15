@@ -17,7 +17,6 @@ import {
   youtubePlaylistItemsOutput,
 } from "./playlistItem.types";
 import { separateEmojiFromText } from "~/utils/extract_emoji";
-import { generateCommentHash } from "~/utils/generate_hash";
 import { removeHtmlTags } from "~/utils/remove_html";
 import {
   savedYtVideoInput,
@@ -27,6 +26,7 @@ import {
   type SyncVideoCommentsOutput,
   type SavedYtVideoOutput,
 } from "~/server/api/routers/video.types";
+import { analyseComments } from "./mindsdb";
 
 export const videoRouter = createTRPCRouter({
   getUserUploadedVideos: publicProcedure
@@ -168,23 +168,23 @@ export const videoRouter = createTRPCRouter({
         );
         // filter out all the comments
         const comments: {
+          commentId: string;
           authorDisplayName: string;
           authorChannelUrl: string;
           authorChannelId: string;
           emojis: string;
           comment: string;
-          hash: string;
           mood: string;
           authorProfilePic: string;
           videoId: string;
         }[] = comment_response.data.items.flatMap((dat) => {
           let _comments_: {
+            commentId: string;
             authorDisplayName: string;
             authorChannelUrl: string;
             authorChannelId: string;
             emojis: string;
             comment: string;
-            hash: string;
             mood: string;
             authorProfilePic: string;
             videoId: string;
@@ -192,15 +192,14 @@ export const videoRouter = createTRPCRouter({
           const _textFiltered = separateEmojiFromText(
             dat.snippet.topLevelComment.snippet.textDisplay
           );
-          const _hash_ = generateCommentHash(_textFiltered.text);
 
           _comments_ = [
             {
               comment: removeHtmlTags(
                 dat.snippet.topLevelComment.snippet.textDisplay
               ),
-              hash: _hash_,
               emojis: _textFiltered.emojis,
+              commentId: dat.snippet.topLevelComment.id,
               authorDisplayName:
                 dat.snippet.topLevelComment.snippet.authorDisplayName,
               authorChannelId:
@@ -223,12 +222,11 @@ export const videoRouter = createTRPCRouter({
                 const _replyFilteredText = removeHtmlTags(
                   reply.snippet.textDisplay
                 );
-                const _hash_ = generateCommentHash(_replyFiltered.text);
 
                 return {
+                  commentId: reply.id,
                   comment: _replyFilteredText,
                   emojis: _replyFiltered.emojis,
-                  hash: _hash_,
                   mood: "",
                   videoId: reply.snippet.videoId,
                   authorProfilePic: reply.snippet.authorProfileImageUrl,
@@ -243,28 +241,18 @@ export const videoRouter = createTRPCRouter({
           return _comments_;
         });
 
-        console.log(
-          "==========================================================="
-        );
-        console.log(
-          comments.map((c) => c.comment),
-          "\n"
-        );
-        console.log(
-          "==========================================================="
-        );
         // save all comments
         const ___data = await Promise.all(
           comments.map(async (cmt) => {
             return await ctx.db.youTubeComments.upsert({
               where: {
-                hash: cmt.hash,
+                yt_comment_id: cmt.commentId,
               },
               create: {
                 yt_video_id: cmt.videoId,
+                yt_comment_id: cmt.commentId,
                 emojis: cmt.emojis,
                 comment: cmt.comment,
-                hash: cmt.hash,
                 mood: cmt.mood,
                 author_display_name: cmt.authorDisplayName,
                 author_profile_pic: cmt.authorProfilePic,
@@ -274,7 +262,6 @@ export const videoRouter = createTRPCRouter({
               update: {
                 emojis: cmt.emojis,
                 comment: cmt.comment,
-                hash: cmt.hash,
                 mood: cmt.mood,
                 author_display_name: cmt.authorDisplayName,
                 author_profile_pic: cmt.authorProfilePic,
@@ -290,13 +277,16 @@ export const videoRouter = createTRPCRouter({
             comment: data.comment,
             mood: data.mood,
             emojis: data.emojis,
-            hash: data.hash,
+            commentId: data.yt_comment_id,
             authorChannelId: data.author_channel_id,
             authorChannelUrl: data.author_channel_url,
             authorDisplayName: data.author_display_name,
             authorProfilePic: data.author_profile_pic,
           };
         });
+
+        await analyseComments();
+
         return response;
       } catch (err) {
         throw new TRPCError({
