@@ -4,8 +4,8 @@ import { env } from "~/env";
 
 const redirectUrl: URL = new URL("/api/youtube/callback", env.CLIENT_BASE_URL);
 export const oauth2Client = new google.auth.OAuth2(
-  env.YT_CLIENT_ID,
-  env.YT_CLIENT_SECRET,
+  env.GOOGLE_CLIENT_ID,
+  env.GOOGLE_CLIENT_SECRET,
   redirectUrl.toString()
 );
 

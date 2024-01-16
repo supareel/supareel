@@ -42,18 +42,18 @@ export default function VideoDetails({
   >([
     {
       name: "Neutral",
-      value: 0,
+      value: 33.33,
       color: "#EAEAEA",
     },
     {
       name: "Positive",
-      value: 0,
-      color: "#00C49F",
+      value: 33.33,
+      color: "#EAEAEA",
     },
     {
       name: "Negative",
-      value: 0,
-      color: "#F94449",
+      value: 33.33,
+      color: "#EAEAEA",
     },
   ]);
 
@@ -71,11 +71,14 @@ export default function VideoDetails({
   const findPercent = (array: string[], match: string): number => {
     const total = array.length;
     const count = array.filter((curr) => curr === match).length;
-    return (count / total) * 100;
+    return Math.round((count / total) * 10000) / 100;
   };
 
   useEffect(() => {
-    if (ytVideosDetail?.data) {
+    if (
+      ytVideosDetail?.data?.yt_video_comments &&
+      ytVideosDetail.data.yt_video_comments.length > 0
+    ) {
       setChartData([
         {
           name: "Neutral",
@@ -176,7 +179,7 @@ export default function VideoDetails({
             <p className="capitalize">User Emotion average: 4.5/5</p>
             <p className="capitalize">Story Telling points: 4.5/5</p> */}
             <div className="flex">
-              <PieChart width={400} height={200}>
+              <PieChart width={400} height={300}>
                 <Pie
                   data={chartData}
                   cx="50%"
