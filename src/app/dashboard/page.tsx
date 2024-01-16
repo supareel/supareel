@@ -8,12 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { useSelectedYoutubeChannel } from "../context/youtubeChannel";
 import { useSession } from "next-auth/react";
 import { LOGIN } from "~/utils/route_names";
 import { redirect, useRouter } from "next/navigation";
+import { Label } from "~/components/ui/label";
+import { Button } from "~/components/ui/button";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -23,12 +26,27 @@ export default function Dashboard() {
       redirect(LOGIN);
     },
   });
+  const [youtubeUrl, setYoutubeUrl] = React.useState<string>("");
+
   const selectedChannel = useSelectedYoutubeChannel();
 
   const ytVideosList = api.video.getUserUploadedVideos.useQuery({
     userId: session?.user.id ?? "",
     ytChannelId: selectedChannel.selectedChannel?.yt_channel_id ?? "",
   });
+
+  function grabVideoId(): string {
+    const regExp =
+      /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#\&\?]*).*/;
+
+    const match = youtubeUrl.match(regExp);
+    if (match && match[7]?.length == 11) {
+      return match[7] ?? "";
+    } else {
+      alert("Url incorrect");
+      return "";
+    }
+  }
 
   // TODO: remove with a loader component
   if (status === "loading") {
@@ -37,6 +55,25 @@ export default function Dashboard() {
   if (status == "authenticated" && selectedChannel.ytChannelList?.channels)
     return (
       <div>
+        <div className="grid w-full my-8 items-center justify-center gap-4">
+          <Label htmlFor="email" className="text-center text-lg">
+            Youtube Video URL
+          </Label>
+          <div className="flex w-full max-w-sm items-center space-x-2">
+            <Input
+              onChange={(data) => setYoutubeUrl(data.target.value)}
+              type="url"
+              className="w-64"
+              placeholder="Paste your youtube video url"
+            />
+            <Button
+              type="submit"
+              onClick={() => router.push(`/dashboard/${grabVideoId()}`)}
+            >
+              Go
+            </Button>
+          </div>
+        </div>
         <div className="grid grid-cols-4 gap-4 m-4">
           {ytVideosList.data?.map((videoMeta) => {
             return videoMeta.yt_channel_id ==

@@ -92,24 +92,7 @@ model YouTubeVideo {
     yt_video_thumbnail   String                @db.LongText
     User                 User?                 @relation(fields: [user_id], references: [id])
     user_id              String?
-    YouTubeComments      YouTubeComments[]
 
     @@index([yt_channel_id])
     @@index([user_id])
-}
-
-model YouTubeComments {
-    id                  String       @id @default(cuid())
-    yt_comment_id       String       @unique
-    author_display_name String
-    author_profile_pic  String
-    author_channel_url  String
-    author_channel_id   String
-    ytVideoId           YouTubeVideo @relation(fields: [yt_video_id], references: [id])
-    yt_video_id         String
-    comment             String       @db.LongText
-    mood                String
-    emojis              String
-
-    @@index([yt_video_id])
 }

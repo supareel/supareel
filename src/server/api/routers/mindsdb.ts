@@ -1,21 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import { db } from "~/server/db";
 import {
   DATASOURCE_NAME,
   SENTIMENT_CLASSIFIER,
 } from "~/server/mindsdb/constants";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import {
-  showHandlersOutput,
-  showModelsQueryResponse,
-  saveYoutubeVideoCommentsInput,
-  saveYoutubeVideoCommentsOutput,
-} from "./mindsdb.types";
+import { showHandlersOutput, showModelsQueryResponse } from "./mindsdb.types";
 import type {
   ShowHandlersOutput,
   ShowModelsQueryResponse,
-  SaveYoutubeVideoCommentsOutput,
+  AnalyseCommentsOutput,
 } from "./mindsdb.types";
 import MindsDB, {
   type Database,
@@ -26,7 +20,6 @@ import MindsDB, {
 import { z } from "zod";
 import { env } from "~/env";
 import { TRPCError } from "@trpc/server";
-import { Prisma } from "@prisma/client";
 
 export const mindsdbRouter = createTRPCRouter({
   showHandlers: publicProcedure
@@ -118,59 +111,40 @@ export const mindsdbRouter = createTRPCRouter({
     }),
 });
 
-export async function analyseComments(): Promise<
-  SaveYoutubeVideoCommentsOutput[]
-> {
-  const videoViewQuery = `SELECT input.comment, input.yt_video_id, input.yt_comment_id, model.sentiment
-  FROM planetscale_datasource.YouTubeComments AS input 
-  JOIN supareel.sentiment_classifier AS model;`;
+export async function analyseComments(
+  videoId: string
+): Promise<AnalyseCommentsOutput[]> {
+  const countCommentsQuery = `SELECT comment_id FROM supareel_db.comments AS input WHERE input.video_id = "${videoId}";`;
+  const videoViewQuery = (
+    videoId: string,
+    limit: number
+  ) => `SELECT input.comment, input.video_id, input.comment_id, model.sentiment
+  FROM supareel_db.comments AS input
+  JOIN supareel.sentiment_classifier AS model
+  WHERE input.video_id = "${videoId}" LIMIT ${limit}`;
   try {
-    const saveCommentResult: SqlQueryResult = await MindsDB.SQL.runQuery(
-      videoViewQuery
+    const countCommentsResult: SqlQueryResult = await MindsDB.SQL.runQuery(
+      countCommentsQuery
+    );
+    const countCommentsCount: number = Math.ceil(
+      countCommentsResult.rows.length / 10
     );
 
-    console.log(saveCommentResult);
-
-    const videoCommentView: {
-      comment: string;
-      video_id: string;
-      comment_id: string;
-      sentiment: string;
-    }[] = saveCommentResult.rows.map((row) => ({
-      comment: row.comment,
-      video_id: row.yt_video_id,
-      comment_id: row.yt_comment_id,
-      sentiment: row.sentiment,
-    }));
-
-    console.log("===========================================================");
-    console.log(
-      videoCommentView.map((c) => ({
-        comment: c.comment,
-        mood: c.sentiment,
-        comment_id: c.comment_id,
-      })),
-      "\n"
-    );
-    console.log("===========================================================");
-
-    const response = await Promise.all(
-      videoCommentView.map(async (_data) => {
-        return await db.youTubeComments.update({
-          data: {
-            comment: _data.comment,
-            yt_video_id: _data.video_id,
-            yt_comment_id: _data.comment_id,
-            mood: _data.sentiment,
-          },
-          where: {
-            yt_comment_id: _data.comment_id,
-          },
-        });
-      })
-    );
-
-    return response;
+    let videoCommentView: AnalyseCommentsOutput[] = [];
+    for (let i = 0; i <= countCommentsCount; i++) {
+      const query = videoViewQuery(videoId, i * 10);
+      const saveCommentResult: SqlQueryResult = await MindsDB.SQL.runQuery(
+        query
+      );
+      console.log(saveCommentResult.rows.length);
+      videoCommentView = saveCommentResult.rows.map((row) => ({
+        comment: row.comment,
+        video_id: row.yt_video_id,
+        comment_id: row.yt_comment_id,
+        sentiment: row.sentiment,
+      }));
+    }
+    return videoCommentView;
   } catch (err) {
     throw new TRPCError({
       code: "INTERNAL_SERVER_ERROR",

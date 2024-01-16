@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { string, z } from "zod";
 
 export const showHandlersOutput = z.array(
   z.object({
@@ -43,3 +43,12 @@ export const saveYoutubeVideoCommentsOutput = z.object({
 export type SaveYoutubeVideoCommentsOutput = z.TypeOf<
   typeof saveYoutubeVideoCommentsOutput
 >;
+
+export const analyseCommentsOutput = z.object({
+  comment: z.string(),
+  video_id: z.string(),
+  comment_id: z.string(),
+  sentiment: z.string(),
+});
+
+export type AnalyseCommentsOutput = z.TypeOf<typeof analyseCommentsOutput>;

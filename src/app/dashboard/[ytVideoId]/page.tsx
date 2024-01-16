@@ -2,19 +2,13 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { LOGIN } from "~/utils/route_names";
-import { redirect, useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 import { api } from "~/trpc/react";
-import { api as serverapi } from "~/trpc/server";
-import { PieChart, Pie, Sector, Tooltip, Legend, Cell } from "recharts";
+import { PieChart, Pie, Tooltip, Cell } from "recharts";
 
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
-import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { CommentTable } from "~/app/_components/dashboard/commentTable";
 import { Button } from "~/components/ui/button";
-import { BorderDottedIcon, SymbolIcon } from "@radix-ui/react-icons";
-import { useSelectedYoutubeChannel } from "~/app/context/youtubeChannel";
 import Image from "next/image";
 import { Youtube } from "lucide-react";
 import Link from "next/link";
@@ -29,12 +23,6 @@ export default function VideoDetails({
     onUnauthenticated() {
       redirect(LOGIN);
     },
-  });
-
-  const ytChannel = useSelectedYoutubeChannel();
-
-  const ytVideosDetail = api.video.ytVideoDetails.useQuery({
-    videoId: params.ytVideoId,
   });
 
   const [chartData, setChartData] = useState<
@@ -57,16 +45,13 @@ export default function VideoDetails({
     },
   ]);
 
-  const ytVideosCommentList = api.video.syncVideoComments.useQuery(
-    {
-      videoId: params.ytVideoId ?? "",
-      accessToken: ytChannel.selectedChannel?.access_token ?? "",
-    },
-    {
-      enabled: false,
-      refetchOnMount: false,
-    }
-  );
+  const ytVideosDetail = api.video.ytVideoDetailsByVideoId.useQuery({
+    videoId: params.ytVideoId ?? "",
+  });
+
+  const ytCommentDetail = api.video.ytVideoCommentAnalysis.useQuery({
+    videoId: params.ytVideoId ?? "",
+  });
 
   const findPercent = (array: string[], match: string): number => {
     const total = array.length;
@@ -75,16 +60,12 @@ export default function VideoDetails({
   };
 
   useEffect(() => {
-    if (
-      ytVideosDetail?.data?.yt_video_comments &&
-      ytVideosDetail.data.yt_video_comments.length > 0
-    ) {
+    if (ytCommentDetail?.data && ytCommentDetail.data.length > 0) {
       setChartData([
         {
           name: "Neutral",
           value: findPercent(
-            ytVideosDetail?.data?.yt_video_comments.map((dat) => dat.mood) ??
-              [],
+            ytCommentDetail?.data?.map((dat) => dat.sentiment) ?? [],
             "neutral"
           ),
           color: "#eaeaea",
@@ -92,8 +73,7 @@ export default function VideoDetails({
         {
           name: "Positive",
           value: findPercent(
-            ytVideosDetail?.data?.yt_video_comments.map((dat) => dat.mood) ??
-              [],
+            ytCommentDetail?.data?.map((dat) => dat.sentiment) ?? [],
             "positive"
           ),
           color: "#00C49F",
@@ -101,42 +81,36 @@ export default function VideoDetails({
         {
           name: "Negative",
           value: findPercent(
-            ytVideosDetail?.data?.yt_video_comments.map((dat) => dat.mood) ??
-              [],
+            ytCommentDetail?.data?.map((dat) => dat.sentiment) ?? [],
             "negative"
           ),
           color: "#F94449",
         },
       ]);
     }
-  }, [ytVideosDetail?.data]);
+  }, [ytCommentDetail?.data]);
 
-  const handleYTVideosCommentList = async () => {
-    // manually refetch
-    await ytVideosCommentList.refetch();
-  };
-  // TODO: remove with a loader component
   if (status === "loading") {
     return "Loading...";
   }
   if (status == "authenticated")
     return (
       <div>
-        <div className="grid grid-cols-3 gap-4 m-4">
-          <div className="col-span-1">
+        <div className="grid grid-cols-12 gap-10 m-4 mx-12">
+          <div className="col-span-5">
             <div className="hover:blur-10 ring-4 ring-gray-300 ring-offset-2 ring-offset-transparent relative group rounded-lg overflow-hidden bg-gray-300 hover:opacity-75 transition-opacity">
               <Image
                 width={400}
                 height={400}
                 className="rounded-lg w-full h-64 bg-center  hover:opacity-1
                   object-cover filter blur-0"
-                src={ytVideosDetail.data?.yt_video_thumbnail ?? ""}
+                src={`https://img.youtube.com/vi/${ytVideosDetail.data?.video_id}/0.jpg`}
                 alt="Your Image"
               />
               <Link
                 className="absolute inset-0 flex items-center justify-center 
               opacity-50 transition-opacity group-hover:opacity-100"
-                href={`https://youtu.be/${ytVideosDetail.data?.yt_video_id}`}
+                href={`https://www.youtube.com/watch?v=${ytVideosDetail.data?.video_id}`}
                 target="_blank"
               >
                 <div className="text-white text-center">
@@ -150,34 +124,21 @@ export default function VideoDetails({
                 </div>
               </Link>
             </div>
-          </div>
-          <div className="col-span-2 gap-2 flex flex-col">
-            <p className="text-xl font-bold">
-              {ytVideosDetail.data?.yt_video_title}
-            </p>
-
-            <div className="flex gap-2">
-              <Badge className="py-1 px-1.5 rounded-full">
-                <Avatar className="h-5 w-5 rounded-full mr-3">
-                  <AvatarImage
-                    src={ytVideosDetail.data?.yt_channel.thumbnail}
-                  />
-                  <AvatarFallback>
-                    {ytVideosDetail.data?.yt_channel.title
-                      .slice(0, 2)
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {ytVideosDetail.data?.yt_channel.title}
-              </Badge>
+            <div className="flex justify-evenly my-6">
+              <p className="capitalize font-bold text-sm">
+                Views: {ytVideosDetail.data?.view_count}
+              </p>
+              <p className="capitalize font-bold text-sm">
+                Likes: {ytVideosDetail.data?.like_count}
+              </p>
+              <p className="capitalize font-bold text-sm">
+                Comments: {ytVideosDetail.data?.comment_count}
+              </p>
             </div>
-            {/* <p className="capitalize">Views: 4.5/5</p>
-            <p className="capitalize">Likes: 4.5/5</p>
-            <p className="capitalize">Comments: 4.5/5</p>
+          </div>
+          <div className="col-span-7 gap-2 flex flex-col">
+            <p className="text-xl font-bold">{ytVideosDetail.data?.title}</p>
 
-            <p className="capitalize">Rating: 4.5/5</p>
-            <p className="capitalize">User Emotion average: 4.5/5</p>
-            <p className="capitalize">Story Telling points: 4.5/5</p> */}
             <div className="flex">
               <PieChart width={400} height={300}>
                 <Pie
@@ -224,31 +185,31 @@ export default function VideoDetails({
                 </div>
               </div>
             </div>
-            <Button
+            {/* <Button
               variant="outline"
               className="gap-2"
               size="lg"
-              disabled={ytVideosCommentList.isRefetching}
+              disabled={ytVideosDetail.isRefetching}
               onClick={handleYTVideosCommentList}
             >
-              {ytVideosCommentList.isRefetching ? (
+              {ytVideosDetail.isRefetching ? (
                 <BorderDottedIcon />
               ) : (
                 <SymbolIcon />
               )}
               Sync video comments
-            </Button>
+            </Button> */}
           </div>
         </div>
         <Separator className="my-8" />
 
-        {ytVideosDetail.data?.yt_video_description ? (
-          <p className="p-8">{ytVideosDetail.data?.yt_video_description}</p>
+        {ytVideosDetail.data?.description ? (
+          <p className="p-8">{ytVideosDetail.data?.description}</p>
         ) : (
           <></>
         )}
 
-        <CommentTable comments={ytVideosDetail.data?.yt_video_comments} />
+        <CommentTable comments={ytCommentDetail?.data} />
       </div>
     );
 }

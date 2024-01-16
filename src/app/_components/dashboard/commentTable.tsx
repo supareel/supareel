@@ -8,12 +8,21 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
+import SpinLoader from "../loader";
 
 export function CommentTable({
   comments,
 }: {
-  comments: { text: string; mood: string }[] | undefined;
+  comments: { comment: string; sentiment: string }[] | undefined;
 }) {
+  if (!comments) {
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <SpinLoader />
+        <h1>Analysing comments</h1>
+      </div>
+    );
+  }
   return (
     <>
       <div className="m-6">
@@ -28,24 +37,18 @@ export function CommentTable({
           <TableBody>
             {comments?.map((cmt, index) => (
               <TableRow key={index}>
-                <TableCell className="font-medium">{cmt.text}</TableCell>
+                <TableCell className="font-medium">{cmt.comment}</TableCell>
                 <TableCell>
-                  {cmt.mood == "neutral"
+                  {cmt.sentiment == "neutral"
                     ? "😐  "
-                    : cmt.mood == "positive"
+                    : cmt.sentiment == "positive"
                     ? "😀  "
                     : "😡  "}
-                  {cmt.mood}
+                  {cmt.sentiment}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
-          {/* <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter> */}
         </Table>
       </div>
     </>

@@ -7,23 +7,23 @@ export const savedYtVideoInput = z.object({
 export type SavedYtVideoInput = z.TypeOf<typeof savedYtVideoInput>;
 
 export const savedYtVideoOutput = z.object({
-  id: z.string(),
-  yt_channel: z.object({
-    title: z.string(),
-    thumbnail: z.string(),
-  }),
-  yt_video_id: z.string(),
-  yt_video_title: z.string(),
-  yt_video_description: z.string(),
-  yt_video_thumbnail: z.string(),
-  yt_video_comments: z.array(
-    z.object({
-      text: z.string(),
-      mood: z.string(),
-    })
-  ),
+  channel_id: z.string(),
+  channel_title: z.string(),
+  title: z.string(),
+  description: z.string(),
+  publish_time: z.string(),
+  comment_count: z.number(),
+  like_count: z.number(),
+  view_count: z.number(),
+  video_id: z.string(),
 });
-
+export const savedYtCommentOutput = z.array(
+  z.object({
+    comment: z.string(),
+    sentiment: z.string(),
+  })
+);
+export type SavedYtCommentOutput = z.TypeOf<typeof savedYtCommentOutput>;
 export type SavedYtVideoOutput = z.TypeOf<typeof savedYtVideoOutput>;
 
 // ------------------------------- syncVideoComments --------------------------------------------

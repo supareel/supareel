@@ -50,40 +50,6 @@ export function UserAuthLoginForm({ className, ...props }: UserAuthFormProps) {
         )}{" "}
         Continue with Google
       </Button>
-      <Button
-        variant="outline"
-        className="hover:border-blue-300 hover:text-blue-500"
-        type="button"
-        size="lg"
-        disabled={isLoading}
-        onClick={async (event) => {
-          await onSubmit(event, "facebook");
-        }}
-      >
-        {selectedProvider == "facebook" ? (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Icons.facebook className="mr-2 h-4 w-4" />
-        )}
-        Continue with Facebook
-      </Button>
-      <Button
-        variant="outline"
-        className="hover:border-sky-300 hover:text-sky-500"
-        type="button"
-        size="lg"
-        disabled={isLoading}
-        onClick={async (event) => {
-          await onSubmit(event, "twitter");
-        }}
-      >
-        {selectedProvider == "twitter" ? (
-          <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <Icons.twitter className="mr-2 h-4 w-4" />
-        )}{" "}
-        Continue with Twitter
-      </Button>
     </div>
   );
 }

@@ -17,11 +17,13 @@ interface ISidebarOptionsButton {
     | undefined;
   children: React.ReactNode;
   tooltip_message: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 }
 export default function SidebarOptionsButton({
   variant,
   children,
   tooltip_message,
+  onClick,
 }: ISidebarOptionsButton) {
   return (
     <div className="flex flex-col">
@@ -31,6 +33,7 @@ export default function SidebarOptionsButton({
             variant={variant ?? "default"}
             size="icon"
             className="text-gray-200"
+            onClick={onClick}
           >
             {children}
           </Button>

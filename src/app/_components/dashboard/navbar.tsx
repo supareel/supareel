@@ -2,8 +2,8 @@
 import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { ModeToggle } from "~/app/_components/themeToggle";
-import { redirect } from "next/navigation";
-import { LOGIN } from "~/utils/route_names";
+import { redirect, useRouter } from "next/navigation";
+import { DASHBOARD, HOME, LOGIN } from "~/utils/route_names";
 import { cn } from "~/lib/utils";
 import { NavigationMenuLink } from "~/components/ui/navigation-menu";
 import { signOut, useSession } from "next-auth/react";
@@ -32,6 +32,8 @@ export function DashboardTopNavigation() {
     },
   });
 
+  const router = useRouter();
+
   const { selectedChannel, ytChannelList, setSelectedChannel } =
     useSelectedYoutubeChannel();
 
@@ -54,7 +56,12 @@ export function DashboardTopNavigation() {
   return status == "authenticated" ? (
     <div className="flex py-3 px-6 justify-between items-center sticky top-0 z-50 border-b dark:bg-gray-950 bg-white border-gray-100 dark:border-gray-900">
       <div>
-        <h4 className="text-xl font-bold italic text-orange-500">SupaReel</h4>
+        <h4
+          className="text-xl font-bold italic text-orange-500 cursor-pointer"
+          onClick={() => router.push(DASHBOARD)}
+        >
+          SupaReel
+        </h4>
       </div>
       <div className="flex justify-end  gap-4 items-center">
         <ModeToggle />

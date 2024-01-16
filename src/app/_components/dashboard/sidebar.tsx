@@ -9,8 +9,11 @@ import {
   UsersIcon,
 } from "lucide-react";
 import { Tooltip } from "~/components/ui/tooltip";
+import { DASHBOARD } from "~/utils/route_names";
+import { useRouter } from "next/navigation";
 
 function Sidebar() {
+  const router = useRouter();
   return (
     <>
       <div className="flex flex-col items-center bg-gray-800 h-screen w-16 fixed z-20 py-5 px-3">
@@ -22,7 +25,11 @@ function Sidebar() {
         </div>
 
         <div className="flex flex-col items-center gap-2 h-full">
-          <SidebarOptionsButton variant="ghost" tooltip_message="HOME">
+          <SidebarOptionsButton
+            variant="ghost"
+            tooltip_message="HOME"
+            onClick={() => router.push(DASHBOARD)}
+          >
             <HomeIcon className="h-4 w-4" />
           </SidebarOptionsButton>
           <SidebarOptionsButton variant="ghost" tooltip_message="BUILD">
