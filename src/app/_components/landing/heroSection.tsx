@@ -11,12 +11,14 @@ function HeroSection() {
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <h1 className="text-8xl font-black">Manage your brand</h1>
-      <h1 className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
+      <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-black">
+        Manage your brand
+      </h1>
+      <h1 className="text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-500">
         with supareel
       </h1>
 
-      <h6 className="py-10 text-xl text-gray-500 md:w-2/5 text-center">
+      <h6 className="py-10 text-lg md:text-xl text-gray-500 lg:w-2/5 text-center">
         Our landing page template works on all devices, so you only have to set
         it up once, and get beautiful results forever.
       </h6>
