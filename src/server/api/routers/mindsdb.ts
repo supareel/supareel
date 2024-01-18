@@ -131,7 +131,7 @@ export async function analyseComments(
     );
 
     let videoCommentView: AnalyseCommentsOutput[] = [];
-    for (let i = 0; i <= countCommentsCount; i++) {
+    for (let i = 1; i <= countCommentsCount; i++) {
       const query = videoViewQuery(videoId, i * 10);
       const saveCommentResult: SqlQueryResult = await MindsDB.SQL.runQuery(
         query
