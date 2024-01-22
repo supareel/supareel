@@ -37,7 +37,7 @@
     "axios": "^1.6.5",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
-    "googleapis": "^130.0.0",
+    "googleapis": "^131.0.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.309.0",
     "mindsdb-js-sdk": "^2.3.0",
