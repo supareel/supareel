@@ -1,11 +1,11 @@
-import MindsDB, { type SqlQueryResult } from "mindsdb-js-sdk";
-import { MINDSDB_HOST_URL } from "./constants";
+import MindsDB from "mindsdb-js-sdk";
+import { env } from "~/env";
 
 export async function connectMindsDB(): Promise<boolean> {
   try {
     // No authentication needed for self-hosting
     await MindsDB.connect({
-      host: MINDSDB_HOST_URL,
+      host: env.MINDSDB_HOST_URL,
       user: "",
       password: "",
     });

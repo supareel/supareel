@@ -45,6 +45,8 @@ export const env = createEnv({
     // EMAIL_FROM: z.string().email()
 
     MINDSDB_HOST_URL: z.string(),
+    DATASOURCE_NAME: z.string(),
+    SENTIMENT_CLASSIFIER: z.string(),
   },
 
   /**
@@ -80,6 +82,8 @@ export const env = createEnv({
     // EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
     // EMAIL_FROM: process.env.EMAIL_FROM
     MINDSDB_HOST_URL: process.env.MINDSDB_HOST_URL,
+    DATASOURCE_NAME: process.env.DATASOURCE_NAME,
+    SENTIMENT_CLASSIFIER: process.env.SENTIMENT_CLASSIFIER,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-import {
-  DATASOURCE_NAME,
-  SENTIMENT_CLASSIFIER,
-} from "~/server/mindsdb/constants";
+
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { showHandlersOutput, showModelsQueryResponse } from "./mindsdb.types";
 import type {
@@ -48,7 +45,7 @@ export const mindsdbRouter = createTRPCRouter({
 
       try {
         const db: Database | undefined = await MindsDB.Databases.getDatabase(
-          DATASOURCE_NAME
+          env.DATASOURCE_NAME
         );
 
         if (!db) {
@@ -75,7 +72,7 @@ export const mindsdbRouter = createTRPCRouter({
       const _models: Model[] = await MindsDB.Models.getAllModels("mindsdb");
 
       const idx: number = _models.findIndex(
-        (_d) => _d.name == SENTIMENT_CLASSIFIER
+        (_d) => _d.name == env.SENTIMENT_CLASSIFIER
       );
 
       if (idx == -1) {

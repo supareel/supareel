@@ -15,7 +15,7 @@ import {
   youtubePlaylistItemsOutput,
 } from "./playlistItem.types";
 import {
-  SavedYtCommentOutput,
+  type SavedYtCommentOutput,
   savedYtCommentOutput,
   savedYtVideoInput,
   savedYtVideoOutput,
