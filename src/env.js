@@ -10,43 +10,41 @@ export const env = createEnv({
     DATABASE_URL: z
       .string()
       .url()
+      .trim()
+      .min(1)
       .refine(
         (str) => !str.includes("YOUR_MYSQL_URL_HERE"),
         "You forgot to change the default URL"
       ),
-    DATABASE_HOST: z.string(),
-    DATABASE_USER: z.string(),
-    DATABASE_PASSWORD: z.string(),
-    DATABASE_PORT: z.string(),
-    DATABASE_NAME: z.string(),
+    DATABASE_HOST: z.string().trim().min(1),
+    DATABASE_USER: z.string().trim().min(1),
+    DATABASE_PASSWORD: z.string().trim().min(1),
+    DATABASE_PORT: z.string().trim().min(1),
+    DATABASE_NAME: z.string().trim().min(1),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
     NEXTAUTH_SECRET:
       process.env.NODE_ENV === "production"
-        ? z.string()
-        : z.string().optional(),
+        ? z.string().trim().min(1)
+        : z.string().trim().optional(),
     NEXTAUTH_URL: z.preprocess(
       // This makes Vercel deployments not fail if you don't set NEXTAUTH_URL
       // Since NextAuth.js automatically uses the VERCEL_URL if present.
       (str) => process.env.VERCEL_URL ?? str,
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
-      process.env.VERCEL ? z.string() : z.string().url()
+      process.env.VERCEL ? z.string() : z.string().trim().url()
     ),
     // Add ` on ID and SECRET if you want to make sure they're not empty
-    GOOGLE_CLIENT_ID: z.string(),
-    GOOGLE_CLIENT_SECRET: z.string(),
-    YT_API_KEY: z.string(),
-    CLIENT_BASE_URL: z.string(),
-    // EMAIL_SERVER_USER: z.string(),
-    // EMAIL_SERVER_PASSWORD: z.string(),
-    // EMAIL_SERVER_HOST: z.string(),
-    // EMAIL_SERVER_PORT: z.string(),
-    // EMAIL_FROM: z.string().email()
+    GOOGLE_CLIENT_ID: z.string().trim().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().trim().min(1),
+    YT_API_KEY: z.string().trim().min(1),
+    CLIENT_BASE_URL: z.string().trim().min(1),
 
-    MINDSDB_HOST_URL: z.string(),
-    DATASOURCE_NAME: z.string(),
-    SENTIMENT_CLASSIFIER: z.string(),
+    MINDSDB_HOST_URL: z.string().trim().min(1),
+    DATASOURCE_NAME: z.string().trim().min(1),
+    SENTIMENT_CLASSIFIER: z.string().trim().min(1),
+    JOB_INTERVAL_MINUTES: z.string().transform(Number).default("10"),
   },
 
   /**
@@ -76,14 +74,10 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     YT_API_KEY: process.env.YT_API_KEY,
     CLIENT_BASE_URL: process.env.CLIENT_BASE_URL,
-    // EMAIL_SERVER_USER: process.env.EMAIL_SERVER_USER,
-    // EMAIL_SERVER_PASSWORD: process.env.EMAIL_SERVER_PASSWORD,
-    // EMAIL_SERVER_HOST: process.env.EMAIL_SERVER_HOST,
-    // EMAIL_SERVER_PORT: process.env.EMAIL_SERVER_PORT,
-    // EMAIL_FROM: process.env.EMAIL_FROM
     MINDSDB_HOST_URL: process.env.MINDSDB_HOST_URL,
     DATASOURCE_NAME: process.env.DATASOURCE_NAME,
     SENTIMENT_CLASSIFIER: process.env.SENTIMENT_CLASSIFIER,
+    JOB_INTERVAL_MINUTES: process.env.JOB_INTERVAL_MINUTES,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

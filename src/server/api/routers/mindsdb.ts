@@ -106,6 +106,39 @@ export const mindsdbRouter = createTRPCRouter({
         version: _models[idx]?.version ?? 0,
       };
     }),
+
+  createRequredJobsForChannel: publicProcedure
+    .output(showModelsQueryResponse)
+    .query(async (): Promise<ShowModelsQueryResponse> => {
+      const _models: Model[] = await MindsDB.Models.getAllModels("mindsdb");
+
+      const idx: number = _models.findIndex(
+        (_d) => _d.name == env.SENTIMENT_CLASSIFIER
+      );
+
+      if (idx == -1) {
+        const query = "SHOW HANDLERS WHERE type = 'data'";
+        const result: SqlQueryResult = await MindsDB.SQL.runQuery(query);
+        const response: ShowHandlersOutput = result.rows.map((handle) => ({
+          name: handle.name,
+          type: handle.type,
+          importable: handle.import_success,
+        }));
+        return {
+          name: "",
+          project: "",
+          status: "",
+          version: 0,
+        };
+      }
+
+      return {
+        name: _models[idx]?.name ?? "",
+        project: _models[idx]?.project ?? "",
+        status: _models[idx]?.status ?? "",
+        version: _models[idx]?.version ?? 0,
+      };
+    }),
 });
 
 export async function analyseComments(
