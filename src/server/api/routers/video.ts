@@ -28,11 +28,11 @@ export const videoRouter = createTRPCRouter({
     .input(youtubePlaylistItemsInput)
     .output(youtubePlaylistItemsOutput)
     .query(async ({ ctx, input }): Promise<YoutubePlaylistItemsOutput> => {
-      const { userId } = input;
+      const { ytChannelId } = input;
       const dbSavedYtVideosResponse: YouTubeVideo[] =
         await ctx.db.youTubeVideo.findMany({
           where: {
-            user_id: userId,
+            yt_channel_id: ytChannelId,
           },
         });
       return dbSavedYtVideosResponse;

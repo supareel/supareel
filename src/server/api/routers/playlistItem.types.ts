@@ -8,7 +8,6 @@ export const youtubePlaylistItemsOutput = z.array(
     yt_video_title: z.string(),
     yt_video_description: z.string(),
     yt_video_thumbnail: z.string(),
-    user_id: z.string().nullable(),
   })
 );
 
