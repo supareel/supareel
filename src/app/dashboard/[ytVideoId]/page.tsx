@@ -31,20 +31,28 @@ export default function VideoDetails({
   >([
     {
       name: "Neutral",
-      value: 33.33,
+      value: 0,
       color: "#EAEAEA",
     },
     {
       name: "Positive",
-      value: 33.33,
+      value: 0,
       color: "#EAEAEA",
     },
     {
       name: "Negative",
-      value: 33.33,
+      value: 0,
       color: "#EAEAEA",
     },
   ]);
+
+  const customLabel = function (entry: {
+    name: string;
+    value: number;
+    color: string;
+  }) {
+    return `${entry.value}% ${entry.name}`;
+  };
 
   const ytVideosDetail = api.video.ytVideoDetailsByVideoId.useQuery({
     video_id: params.ytVideoId ?? "",
@@ -157,25 +165,39 @@ export default function VideoDetails({
 
             <div className="flex">
               <PieChart width={400} height={300}>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={74}
-                  fill="#8884d8"
-                  dataKey="value"
-                  legendType="circle"
-                  label
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.color}
-                      name={entry.name}
-                    />
-                  ))}
-                  <Tooltip />
-                </Pie>
+                {chartData.filter((dt) => dt.value == 0).length == 3 ? (
+                  <Pie
+                    data={[{ name: "No Data", value: 1, color: "#eeeeee" }]}
+                    fill="#eeeeee"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={74}
+                    dataKey="value"
+                    nameKey="name"
+                    legendType="circle"
+                    label={() => "No Data"}
+                  />
+                ) : (
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={74}
+                    fill="#8884d8"
+                    dataKey="value"
+                    legendType="circle"
+                    label={customLabel}
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.color}
+                        name={entry.name}
+                      />
+                    ))}
+                    <Tooltip />
+                  </Pie>
+                )}
               </PieChart>
               <div className="flex flex-col justify-center items-start">
                 <div className="flex justify-center items-center gap-4">
