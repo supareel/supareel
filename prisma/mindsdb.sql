@@ -10,7 +10,7 @@ USING engine='huggingface',
 CREATE DATABASE supareel_db
 WITH ENGINE = 'youtube',
 PARAMETERS = {
-  "youtube_api_token": "AIzaSyDDSPsGuMm1vztNCj-FrZhuuNstsBShwLA"
+  "youtube_api_token": "<your_youtube_api_key>"
 };
 
 SELECT * FROM supareel.jobs_history ORDER BY RUN_START DESC;
