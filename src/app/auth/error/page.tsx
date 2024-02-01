@@ -18,7 +18,6 @@ function Error() {
         <Button
           variant="secondary"
           onClick={() => {
-            console.log("rediring");
             router.replace(LOGIN);
           }}
         >

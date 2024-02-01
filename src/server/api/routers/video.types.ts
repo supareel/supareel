@@ -4,8 +4,6 @@ export const savedYtVideoInput = z.object({
   videoId: z.string(),
 });
 
-export type SavedYtVideoInput = z.TypeOf<typeof savedYtVideoInput>;
-
 export const savedYtVideoOutput = z.object({
   channel_id: z.string(),
   channel_title: z.string(),
@@ -27,6 +25,24 @@ export const savedYtCommentOutput = z.array(
     sentiment: z.string(),
   })
 );
+
+export const youtubeVideoOutput = z.array(
+  z.object({
+    id: z.number(),
+    yt_video_id: z.string(),
+    yt_channel_id: z.string(),
+    yt_video_title: z.string(),
+    yt_video_description: z.string(),
+    yt_video_thumbnail: z.string(),
+  })
+);
+
+export const getUserUploadedVideosInput = z.object({
+  channel_id: z.string(),
+});
+
+export type SavedYtVideoInput = z.TypeOf<typeof savedYtVideoInput>;
+export type YoutubeVideoOutput = z.TypeOf<typeof youtubeVideoOutput>;
 export type SavedYtCommentOutput = z.TypeOf<typeof savedYtCommentOutput>;
 export type SavedYtVideoOutput = z.TypeOf<typeof savedYtVideoOutput>;
 

@@ -10,14 +10,14 @@ export default function MindsDB() {
     "none" | "generating" | "error" | "complete"
   >("none");
 
-  const connectDb = api.mindsdb.connectPlanetScaleDB.useQuery(undefined, {
-    enabled: false,
-    refetchOnMount: false,
-  });
-  const modelLoad = api.mindsdb.loadSentimentAnalysisModel.useQuery(undefined, {
-    enabled: false,
-    refetchOnMount: false,
-  });
+  // const connectDb = api.mindsdb.connectPlanetScaleDB.useQuery(undefined, {
+  //   enabled: false,
+  //   refetchOnMount: false,
+  // });
+  // const modelLoad = api.mindsdb.loadSentimentAnalysisModel.useQuery(undefined, {
+  //   enabled: false,
+  //   refetchOnMount: false,
+  // });
 
   return (
     <main>

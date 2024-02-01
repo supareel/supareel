@@ -52,3 +52,21 @@ export const analyseCommentsOutput = z.object({
 });
 
 export type AnalyseCommentsOutput = z.TypeOf<typeof analyseCommentsOutput>;
+
+export const manualSyncMyUploadedVideosInput = z.object({
+  channel_id: z.string(),
+});
+export type ManualSyncMyUploadedVideosInput = z.TypeOf<
+  typeof manualSyncMyUploadedVideosInput
+>;
+
+export const manualSyncMyUploadedVideosOutput = z.object({
+  yt_video_id: z.string(),
+  yt_channel_id: z.string(),
+  yt_video_title: z.string(),
+  yt_video_description: z.string(),
+  yt_video_thumbnail: z.string(),
+});
+export type ManualSyncMyUploadedVideosOutput = z.TypeOf<
+  typeof manualSyncMyUploadedVideosOutput
+>;

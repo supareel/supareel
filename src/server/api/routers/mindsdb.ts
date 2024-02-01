@@ -2,11 +2,17 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { showHandlersOutput, showModelsQueryResponse } from "./mindsdb.types";
+import {
+  manualSyncMyUploadedVideosInput,
+  manualSyncMyUploadedVideosOutput,
+  showHandlersOutput,
+  showModelsQueryResponse,
+} from "./mindsdb.types";
 import type {
   ShowHandlersOutput,
   ShowModelsQueryResponse,
   AnalyseCommentsOutput,
+  ManualSyncMyUploadedVideosOutput,
 } from "./mindsdb.types";
 import MindsDB, {
   type Database,
@@ -17,6 +23,7 @@ import MindsDB, {
 import { z } from "zod";
 import { env } from "~/env";
 import { TRPCError } from "@trpc/server";
+import { YouTubeChannelDetails, YouTubeVideo } from "@prisma/client";
 
 export const mindsdbRouter = createTRPCRouter({
   showHandlers: publicProcedure
@@ -139,9 +146,56 @@ export const mindsdbRouter = createTRPCRouter({
         version: _models[idx]?.version ?? 0,
       };
     }),
+
+  manualSyncMyUploadedVideos: publicProcedure
+    .input(manualSyncMyUploadedVideosInput)
+    .output(manualSyncMyUploadedVideosOutput)
+    .query(
+      async ({ ctx, input }): Promise<ManualSyncMyUploadedVideosOutput> => {
+        const { channel_id } = input;
+
+        const query_sync_videos = `INSERT INTO planetscale_datasource.YouTubeVideo (
+        SELECT 
+        video_id as yt_video_id, 
+        channel_id as yt_channel_id, 
+        title AS yt_video_title, 
+        description as yt_video_description, 
+        thumbnail as yt_video_thumbnail  
+        FROM supareel_db.videos 
+        WHERE 
+        channel_id = '${channel_id}'
+      )`;
+        try {
+          const result: SqlQueryResult = await MindsDB.SQL.runQuery(
+            query_sync_videos
+          );
+          if (result.type !== "ok")
+            new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              cause: "ai engine went down",
+              message: "unable to sync youtube videos",
+            });
+
+          const dbResponse: YouTubeVideo =
+            await ctx.db.youTubeVideo.findFirstOrThrow({
+              where: {
+                yt_channel_id: channel_id,
+              },
+            });
+
+          return dbResponse as ManualSyncMyUploadedVideosOutput;
+        } catch (err) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "unable to get youtube videos for this channel",
+            cause: err,
+          });
+        }
+      }
+    ),
 });
 
-export async function analyseComments(
+export async function ______(
   videoId: string
 ): Promise<AnalyseCommentsOutput[]> {
   const countCommentsQuery = `SELECT comment_id FROM supareel_db.comments AS input WHERE input.video_id = "${videoId}";`;

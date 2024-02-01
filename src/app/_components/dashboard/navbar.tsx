@@ -3,7 +3,7 @@ import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { ModeToggle } from "~/app/_components/themeToggle";
 import { redirect, useRouter } from "next/navigation";
-import { DASHBOARD, HOME, LOGIN } from "~/utils/route_names";
+import { DASHBOARD, LOGIN } from "~/utils/route_names";
 import { cn } from "~/lib/utils";
 import { NavigationMenuLink } from "~/components/ui/navigation-menu";
 import { signOut, useSession } from "next-auth/react";
@@ -25,7 +25,7 @@ import YoutubeLogin from "../social/YoutubeLogin";
 import { useSelectedYoutubeChannel } from "~/app/context/youtubeChannel";
 
 export function DashboardTopNavigation() {
-  const { status, data } = useSession({
+  const { status } = useSession({
     required: true,
     onUnauthenticated() {
       redirect(LOGIN);
@@ -37,10 +37,9 @@ export function DashboardTopNavigation() {
   const { selectedChannel, ytChannelList, setSelectedChannel } =
     useSelectedYoutubeChannel();
 
-  const ytVideosSyncList = api.video.syncMyUploadedVideos.useQuery(
+  const ytVideosSyncList = api.mindsdb.manualSyncMyUploadedVideos.useQuery(
     {
-      userId: data?.user.id ?? "",
-      ytChannelId: selectedChannel?.yt_channel_id ?? "",
+      channel_id: selectedChannel?.yt_channel_id ?? "",
     },
     {
       enabled: false,
@@ -89,7 +88,7 @@ export function DashboardTopNavigation() {
             <DropdownMenuSeparator />
 
             <DropdownMenuRadioGroup
-              value={selectedChannel?.yt_channel_title}
+              value={selectedChannel?.yt_channel_title ?? ""}
               onValueChange={async (event) => {
                 const newChannelDataList = ytChannelList?.channels.filter(
                   (data) => data.yt_channel_title == event
@@ -105,7 +104,7 @@ export function DashboardTopNavigation() {
                 <DropdownMenuRadioItem value={chan.yt_channel_title ?? ""}>
                   <div className="gap-2 flex justify-between items-center">
                     <Avatar className="items-center h-8 w-8 rounded-full">
-                      <AvatarImage src={chan.yt_channel_thumbnails} />
+                      <AvatarImage src={chan.yt_channel_thumbnails ?? ""} />
                       <AvatarFallback>NA</AvatarFallback>
                     </Avatar>
                     <span>{chan.yt_channel_title}</span>
@@ -144,7 +143,7 @@ export function DashboardTopNavigation() {
             <DropdownMenuLabel>Panel Position</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
-              value={selectedChannel?.yt_channel_title}
+              value={selectedChannel?.yt_channel_title ?? ""}
               onValueChange={(event) => {
                 const newChannelDataList = ytChannelList?.channels.filter(
                   (data) => data.yt_channel_title == event

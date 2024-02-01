@@ -7,12 +7,3 @@ export const youtubeChannelDetailsInput = z.object({
 export type YoutubeChannelDetailsInput = z.TypeOf<
   typeof youtubeChannelDetailsInput
 >;
-
-export const youtubePlaylistItemsInput = z.object({
-  userId: z.string(),
-  ytChannelId: z.string(),
-});
-
-export type YoutubePlaylistItemsInput = z.TypeOf<
-  typeof youtubePlaylistItemsInput
->;

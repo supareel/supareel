@@ -31,8 +31,7 @@ export default function Dashboard() {
   const selectedChannel = useSelectedYoutubeChannel();
 
   const ytVideosList = api.video.getUserUploadedVideos.useQuery({
-    userId: session?.user.id ?? "",
-    ytChannelId: selectedChannel.selectedChannel?.yt_channel_id ?? "",
+    channel_id: selectedChannel.selectedChannel?.yt_channel_id ?? "",
   });
 
   function grabVideoId(): string {

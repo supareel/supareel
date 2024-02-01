@@ -1,15 +1,12 @@
 import "~/styles/globals.css";
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 
-import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 import { TRPCReactProvider } from "~/trpc/react";
 import { NextAuthProvider } from "~/providers/auth";
 import { getServerAuthSession } from "~/server/auth";
 import { ThemeProvider } from "~/providers/theme";
-
-const inter = Inter({
-  subsets: ["latin"],
-});
 
 export const metadata = {
   title: "Supareel - Super App for Youtubers",
@@ -26,7 +23,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={GeistSans.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <TRPCReactProvider cookies={cookies().toString()}>
             <NextAuthProvider session={session}>{children}</NextAuthProvider>
