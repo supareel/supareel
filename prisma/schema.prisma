@@ -87,6 +87,9 @@ model YouTubeVideo {
     yt_video_title       String                 @db.LongText
     yt_video_description String                 @db.LongText
     yt_video_thumbnail   String                 @db.LongText
+    comment_count        BigInt
+    like_count           BigInt
+    view_count           BigInt
     YouTubeComments      YouTubeComments[]
 
     @@index([yt_channel_id])
@@ -107,10 +110,8 @@ model TestComments {
     id         Int    @id @default(autoincrement())
     comment_id String
     video_id   String
-    channel_id String
     comment    String
-    sentiment  String
+    sentiment  String @default("")
 
-    @@index([channel_id])
     @@index([video_id])
 }

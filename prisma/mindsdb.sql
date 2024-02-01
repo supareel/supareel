@@ -15,10 +15,17 @@ PARAMETERS = {
 
 SELECT * FROM supareel.jobs_history ORDER BY RUN_START DESC;
 
--- JOB for Syncing youtube videos - 1week
-CREATE JOB IF NOT EXISTS supareel.sync_videos_UCdOb1Se6eXYpYHD8HWFXtWg AS (
+-- [ONCE] JOB for Syncing youtube videos - 1week
+CREATE JOB IF NOT EXISTS supareel.sync_videos AS (
   INSERT INTO planetscale_datasource.YouTubeVideo (
-    SELECT video_id as yt_video_id, channel_id as yt_channel_id, title AS yt_video_title, description as yt_video_description, thumbnail as yt_video_thumbnail  FROM supareel_db.videos WHERE channel_id = (SELECT yt_channel_id FROM planetscale_datasource.YouTubeChannelDetails)
+    SELECT 
+    video_id as yt_video_id, 
+    channel_id as yt_channel_id, 
+    title AS yt_video_title, 
+    description as yt_video_description, 
+    thumbnail as yt_video_thumbnail  
+    FROM supareel_db.videos 
+    WHERE channel_id = (SELECT yt_channel_id FROM planetscale_datasource.YouTubeChannelDetails)
   )
 ) END '2024-02-02 00:00:00' EVERY week;
 
@@ -41,22 +48,20 @@ CREATE JOB IF NOT EXISTS supareel.sync_channel_UCdOb1Se6eXYpYHD8HWFXtWg AS (
   WHERE channel_id='UCdOb1Se6eXYpYHD8HWFXtWg'
 ) END '2024-02-02 00:00:00' EVERY month;
 
-SELECT *
-    FROM supareel_db.channels WHERE channel_id='UCdOb1Se6eXYpYHD8HWFXtWg';
-
 
 -- get all comments for video
-CREATE JOB IF NOT EXISTS supareel.sync_comments_UCdOb1Se6eXYpYHD8HWFXtWg AS (
-  INSERT INTO planetscale_datasource.YouTubeComments(
-    SELECT
-      tc.comment_id AS yt_comment_id,
-      tc.video_id AS yt_video_id,
-      tc.comment AS yt_comment,
-      tc.channel_id AS yt_channel_id
-    FROM planetscale_datasource.TestComments tc
-    LEFT JOIN planetscale_datasource.YouTubeComments yc ON tc.comment_id = yc.yt_comment_id
-    WHERE yc.yt_comment_id IS NULL AND tc.video_id IN (SELECT yt_video_id FROM planetscale_datasource.YouTubeVideo)
-  );
+CREATE JOB IF NOT EXISTS supareel.sync_comments AS (
+  DELETE FROM planetscale_datasource.YouTubeComments WHERE yt_video_id IN (SELECT yt_video_id FROM planetscale_datasource.YouTubeVideo);
+    INSERT INTO planetscale_datasource.YouTubeComments(
+      SELECT
+        tc.comment_id AS yt_comment_id,
+        tc.video_id AS yt_video_id,
+        tc.comment AS yt_comment,
+        tc.channel_id AS yt_channel_id
+      FROM planetscale_datasource.TestComments tc
+      LEFT JOIN planetscale_datasource.YouTubeComments yc ON tc.comment_id = yc.yt_comment_id
+      WHERE yc.yt_comment_id IS NULL AND tc.video_id IN (SELECT yt_video_id FROM planetscale_datasource.YouTubeVideo)
+    );
 ) END '2024-02-01 00:00:00' EVERY hour;
 
 -- TRIGGER

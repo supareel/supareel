@@ -10,9 +10,9 @@ export const savedYtVideoOutput = z.object({
   title: z.string(),
   description: z.string(),
   publish_time: z.string(),
-  comment_count: z.number(),
-  like_count: z.number(),
-  view_count: z.number(),
+  comment_count: z.bigint(),
+  like_count: z.bigint(),
+  view_count: z.bigint(),
   video_id: z.string(),
 });
 export const savedYtCommentOutput = z.array(

@@ -25,12 +25,12 @@ export const videoRouter = createTRPCRouter({
             yt_channel_id: channel_id,
           },
         });
-      return dbSavedYtVideosResponse;
+      return dbSavedYtVideosResponse as YoutubeVideoOutput;
     }),
   ytVideoDetailsByVideoId: publicProcedure
     .input(savedYtVideoInput)
     .output(savedYtVideoOutput)
-    .query(async ({ input }): Promise<SavedYtVideoOutput> => {
+    .query(async ({ ctx, input }): Promise<SavedYtVideoOutput> => {
       const videoDetailQuery = `SELECT channel_id, channel_title, title, description, publish_time,
       comment_count,like_count, view_count, video_id 
       FROM supareel_db.videos WHERE video_id = '${input.video_id}';`;
@@ -39,18 +39,33 @@ export const videoRouter = createTRPCRouter({
           videoDetailQuery
         );
 
+        const createdYtVideo: YouTubeVideo = await ctx.db.youTubeVideo.create({
+          data: {
+            yt_video_title: String(videoDetailResult.rows[0]?.title),
+            yt_video_description: String(
+              videoDetailResult.rows[0]?.description
+            ),
+            yt_video_thumbnail: "",
+            yt_channel_id: String(videoDetailResult.rows[0]?.channel_id),
+            yt_video_id: String(videoDetailResult.rows[0]?.video_id),
+            comment_count: parseInt(
+              String(videoDetailResult.rows[0]?.comment_count)
+            ),
+            like_count: parseInt(String(videoDetailResult.rows[0]?.like_count)),
+            view_count: parseInt(String(videoDetailResult.rows[0]?.view_count)),
+          },
+        });
+
         const videoResult = {
-          channel_id: String(videoDetailResult.rows[0]?.channel_id),
           channel_title: String(videoDetailResult.rows[0]?.channel_title),
-          title: String(videoDetailResult.rows[0]?.title),
-          description: String(videoDetailResult.rows[0]?.description),
+          channel_id: createdYtVideo.yt_channel_id ?? "",
+          title: createdYtVideo.yt_video_title,
+          description: createdYtVideo.yt_video_description,
           publish_time: String(videoDetailResult.rows[0]?.publish_time),
-          comment_count: parseInt(
-            String(videoDetailResult.rows[0]?.comment_count)
-          ),
-          like_count: parseInt(String(videoDetailResult.rows[0]?.like_count)),
-          view_count: parseInt(String(videoDetailResult.rows[0]?.view_count)),
-          video_id: String(videoDetailResult.rows[0]?.video_id),
+          comment_count: createdYtVideo.comment_count,
+          like_count: createdYtVideo?.like_count,
+          view_count: createdYtVideo?.view_count,
+          video_id: createdYtVideo.yt_video_title,
         };
 
         return {
