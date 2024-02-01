@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import type { YouTubeVideo } from "@prisma/client";
+import type { YouTubeComments, YouTubeVideo } from "@prisma/client";
 import MindsDB, { type SqlQueryResult } from "mindsdb-js-sdk";
 import { TRPCError } from "@trpc/server";
 import {
@@ -9,6 +9,8 @@ import {
   savedYtVideoOutput,
   type SavedYtVideoOutput,
   getUserUploadedVideosInput,
+  type SavedYtCommentOutput,
+  savedYtCommentOutput,
 } from "~/server/api/routers/video.types";
 
 export const videoRouter = createTRPCRouter({
@@ -31,7 +33,7 @@ export const videoRouter = createTRPCRouter({
     .query(async ({ input }): Promise<SavedYtVideoOutput> => {
       const videoDetailQuery = `SELECT channel_id, channel_title, title, description, publish_time,
       comment_count,like_count, view_count, video_id 
-      FROM supareel_db.videos WHERE video_id = '${input.videoId}';`;
+      FROM supareel_db.videos WHERE video_id = '${input.video_id}';`;
       try {
         const videoDetailResult: SqlQueryResult = await MindsDB.SQL.runQuery(
           videoDetailQuery
@@ -71,17 +73,17 @@ export const videoRouter = createTRPCRouter({
         });
       }
     }),
-  // ytVideoComments: publicProcedure
-  //   .input(savedYtVideoInput)
-  //   .output(savedYtCommentOutput)
-  //   .query(async ({ input, ctx }): Promise<SavedYtCommentOutput> => {
-  //     const comments: YouTubeComments[] = await ctx.db.youTubeComments.findMany(
-  //       {
-  //         where: {
-  //           yt_video_id: input.videoId,
-  //         },
-  //       }
-  //     );
-  //     return comments;
-  //   }),
+  ytVideoComments: publicProcedure
+    .input(savedYtVideoInput)
+    .output(savedYtCommentOutput)
+    .query(async ({ input, ctx }): Promise<SavedYtCommentOutput> => {
+      const comments: YouTubeComments[] = await ctx.db.youTubeComments.findMany(
+        {
+          where: {
+            yt_video_id: input.video_id,
+          },
+        }
+      );
+      return comments as SavedYtCommentOutput;
+    }),
 });

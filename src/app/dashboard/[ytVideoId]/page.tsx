@@ -12,6 +12,7 @@ import { Button } from "~/components/ui/button";
 import Image from "next/image";
 import { Youtube } from "lucide-react";
 import Link from "next/link";
+import { BorderDottedIcon, SymbolIcon } from "@radix-ui/react-icons";
 
 export default function VideoDetails({
   params,
@@ -46,11 +47,26 @@ export default function VideoDetails({
   ]);
 
   const ytVideosDetail = api.video.ytVideoDetailsByVideoId.useQuery({
-    videoId: params.ytVideoId ?? "",
+    video_id: params.ytVideoId ?? "",
   });
 
+  const ytVideosSyncList = api.mindsdb.manualSyncVideoComments.useQuery(
+    {
+      video_id: params.ytVideoId ?? "",
+    },
+    {
+      enabled: false,
+      refetchOnMount: false,
+    }
+  );
+
+  const handleYTCommentsList = async () => {
+    // manually refetch
+    await ytVideosSyncList.refetch();
+  };
+
   const ytCommentDetail = api.video.ytVideoComments.useQuery({
-    videoId: params.ytVideoId ?? "",
+    video_id: params.ytVideoId ?? "",
   });
 
   const findPercent = (array: string[], match: string): number => {
@@ -185,20 +201,20 @@ export default function VideoDetails({
                 </div>
               </div>
             </div>
-            {/* <Button
+            <Button
               variant="outline"
               className="gap-2"
               size="lg"
-              disabled={ytVideosDetail.isRefetching}
-              onClick={handleYTVideosCommentList}
+              disabled={ytVideosSyncList.isRefetching}
+              onClick={handleYTCommentsList}
             >
-              {ytVideosDetail.isRefetching ? (
+              {ytVideosSyncList.isRefetching ? (
                 <BorderDottedIcon />
               ) : (
                 <SymbolIcon />
               )}
               Sync video comments
-            </Button> */}
+            </Button>
           </div>
         </div>
         <Separator className="my-8" />
@@ -211,7 +227,7 @@ export default function VideoDetails({
 
         <CommentTable
           comments={ytCommentDetail?.data?.map((dt) => ({
-            id: dt.id,
+            id: dt.yt_comment_id,
             comment: dt.yt_comment,
             sentiment: dt.sentiment,
           }))}

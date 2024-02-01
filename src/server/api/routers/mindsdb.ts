@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import {
   manualSyncMyUploadedVideosInput,
   manualSyncMyUploadedVideosOutput,
+  manualSyncVideosCommentsInput,
+  manualSyncVideosCommentsOutput,
   showHandlersOutput,
   showModelsQueryResponse,
 } from "./mindsdb.types";
@@ -13,6 +12,7 @@ import type {
   ShowModelsQueryResponse,
   AnalyseCommentsOutput,
   ManualSyncMyUploadedVideosOutput,
+  ManualSyncVideosCommentsOutput,
 } from "./mindsdb.types";
 import MindsDB, {
   type Database,
@@ -23,7 +23,7 @@ import MindsDB, {
 import { z } from "zod";
 import { env } from "~/env";
 import { TRPCError } from "@trpc/server";
-import { YouTubeChannelDetails, YouTubeVideo } from "@prisma/client";
+import type { YouTubeComments, YouTubeVideo } from "@prisma/client";
 
 export const mindsdbRouter = createTRPCRouter({
   showHandlers: publicProcedure
@@ -32,8 +32,11 @@ export const mindsdbRouter = createTRPCRouter({
       const query = "SHOW HANDLERS WHERE type = 'data'";
       const result: SqlQueryResult = await MindsDB.SQL.runQuery(query);
       const response: ShowHandlersOutput = result.rows.map((handle) => ({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         name: handle.name,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         type: handle.type,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         importable: handle.import_success,
       }));
 
@@ -193,6 +196,46 @@ export const mindsdbRouter = createTRPCRouter({
         }
       }
     ),
+  manualSyncVideoComments: publicProcedure
+    .input(manualSyncVideosCommentsInput)
+    .output(manualSyncVideosCommentsOutput)
+    .query(async ({ input, ctx }): Promise<ManualSyncVideosCommentsOutput> => {
+      const { video_id } = input;
+
+      const query_sync_videos_comments = `INSERT INTO planetscale_datasource.YouTubeComments(
+        SELECT DISTINCT yt_comment,
+          tc.comment_id AS yt_comment_id,
+          tc.video_id AS yt_video_id,
+          tc.comment AS yt_comment
+        FROM supareel_db.comments tc
+        LEFT JOIN planetscale_datasource.YouTubeComments yc ON tc.comment_id = yc.yt_comment_id
+        WHERE yc.yt_comment_id IS NULL AND tc.video_id='${video_id}'
+      );`;
+      try {
+        const result: SqlQueryResult = await MindsDB.SQL.runQuery(
+          query_sync_videos_comments
+        );
+        if (result.type !== "ok")
+          new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            cause: "ai engine went down",
+            message: "unable to sync youtube videos",
+          });
+        const comments: YouTubeComments[] =
+          await ctx.db.youTubeComments.findMany({
+            where: {
+              yt_video_id: input.video_id,
+            },
+          });
+        return comments as ManualSyncVideosCommentsOutput;
+      } catch (err) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "unable to get comment for this video",
+          cause: err,
+        });
+      }
+    }),
 });
 
 export async function ______(

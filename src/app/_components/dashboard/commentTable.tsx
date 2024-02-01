@@ -12,7 +12,7 @@ import SpinLoader from "../loader";
 export function CommentTable({
   comments,
 }: {
-  comments: { id: number; comment: string; sentiment: string }[] | undefined;
+  comments: { id: string; comment: string; sentiment: string }[] | undefined;
 }) {
   if (!comments) {
     return (
@@ -42,7 +42,9 @@ export function CommentTable({
                     ? "😐  "
                     : cmt.sentiment == "positive"
                     ? "😀  "
-                    : "😡  "}
+                    : cmt.sentiment == "negative"
+                    ? "😡  "
+                    : ""}
                   {cmt.sentiment}
                 </TableCell>
               </TableRow>

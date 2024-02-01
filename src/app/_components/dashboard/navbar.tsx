@@ -121,19 +121,6 @@ export function DashboardTopNavigation() {
 
         {/* settings */}
         <DropdownMenu>
-          <Button
-            variant="outline"
-            className="gap-2"
-            disabled={ytVideosSyncList.isRefetching}
-            onClick={handleYTVideosList}
-          >
-            {ytVideosSyncList.isRefetching ? (
-              <BorderDottedIcon />
-            ) : (
-              <SymbolIcon />
-            )}
-            Sync YouTube Videos
-          </Button>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
               <GearIcon />

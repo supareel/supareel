@@ -17,6 +17,7 @@ import { LOGIN } from "~/utils/route_names";
 import { redirect, useRouter } from "next/navigation";
 import { Label } from "~/components/ui/label";
 import { Button } from "~/components/ui/button";
+import { SymbolIcon, BorderDottedIcon } from "@radix-ui/react-icons";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -28,11 +29,26 @@ export default function Dashboard() {
   });
   const [youtubeUrl, setYoutubeUrl] = React.useState<string>("");
 
-  const selectedChannel = useSelectedYoutubeChannel();
+  const { selectedChannel, ytChannelList } = useSelectedYoutubeChannel();
 
   const ytVideosList = api.video.getUserUploadedVideos.useQuery({
-    channel_id: selectedChannel.selectedChannel?.yt_channel_id ?? "",
+    channel_id: selectedChannel?.yt_channel_id ?? "",
   });
+
+  const ytVideosSyncList = api.mindsdb.manualSyncMyUploadedVideos.useQuery(
+    {
+      channel_id: selectedChannel?.yt_channel_id ?? "",
+    },
+    {
+      enabled: false,
+      refetchOnMount: false,
+    }
+  );
+
+  const handleYTVideosList = async () => {
+    // manually refetch
+    await ytVideosSyncList.refetch();
+  };
 
   function grabVideoId(): string {
     const regExp =
@@ -51,7 +67,7 @@ export default function Dashboard() {
   if (status === "loading") {
     return "Loading...";
   }
-  if (status == "authenticated" && selectedChannel.ytChannelList?.channels)
+  if (status == "authenticated" && ytChannelList?.channels)
     return (
       <div>
         <div className="grid w-full my-8 items-center justify-center gap-4">
@@ -72,11 +88,28 @@ export default function Dashboard() {
               Go
             </Button>
           </div>
+          <div className="flex items-center">
+            <div className="flex-grow border-t border-gray-300"></div>
+            <div className="px-2 text-gray-500 italic">or</div>
+            <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+          <Button
+            variant="secondary"
+            className="gap-2"
+            disabled={ytVideosSyncList.isRefetching}
+            onClick={handleYTVideosList}
+          >
+            {ytVideosSyncList.isRefetching ? (
+              <BorderDottedIcon />
+            ) : (
+              <SymbolIcon />
+            )}
+            Sync YouTube Videos
+          </Button>
         </div>
         <div className="grid grid-cols-4 gap-4 m-4">
           {ytVideosList.data?.map((videoMeta) => {
-            return videoMeta.yt_channel_id ==
-              selectedChannel.selectedChannel?.yt_channel_id ? (
+            return videoMeta.yt_channel_id == selectedChannel?.yt_channel_id ? (
               <Card
                 key={videoMeta.id}
                 className="cursor-pointer"
@@ -105,7 +138,7 @@ export default function Dashboard() {
                     <Avatar>
                       <AvatarImage
                         src={
-                          selectedChannel.ytChannelList!.channels.find(
+                          ytChannelList.channels.find(
                             (chan) =>
                               chan.yt_channel_id == videoMeta.yt_channel_id
                           )?.yt_channel_thumbnails ?? ""
@@ -116,7 +149,7 @@ export default function Dashboard() {
                     </Avatar>
                     <p className="text-slate-400">
                       {
-                        selectedChannel.ytChannelList!.channels.find(
+                        ytChannelList.channels.find(
                           (chan) =>
                             chan.yt_channel_id == videoMeta.yt_channel_id
                         )?.yt_channel_title

@@ -1,4 +1,4 @@
-import { string, z } from "zod";
+import { z } from "zod";
 
 export const showHandlersOutput = z.array(
   z.object({
@@ -69,4 +69,23 @@ export const manualSyncMyUploadedVideosOutput = z.object({
 });
 export type ManualSyncMyUploadedVideosOutput = z.TypeOf<
   typeof manualSyncMyUploadedVideosOutput
+>;
+
+export const manualSyncVideosCommentsInput = z.object({
+  video_id: z.string(),
+});
+export type ManualSyncVideosCommentsInput = z.TypeOf<
+  typeof manualSyncVideosCommentsInput
+>;
+
+export const manualSyncVideosCommentsOutput = z.array(
+  z.object({
+    yt_comment_id: z.string(),
+    yt_video_id: z.string(),
+    yt_comment: z.string(),
+    sentiment: z.string(),
+  })
+);
+export type ManualSyncVideosCommentsOutput = z.TypeOf<
+  typeof manualSyncVideosCommentsOutput
 >;

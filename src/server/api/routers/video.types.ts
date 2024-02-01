@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const savedYtVideoInput = z.object({
-  videoId: z.string(),
+  video_id: z.string(),
 });
 
 export const savedYtVideoOutput = z.object({
@@ -17,10 +17,8 @@ export const savedYtVideoOutput = z.object({
 });
 export const savedYtCommentOutput = z.array(
   z.object({
-    id: z.number(),
     yt_comment_id: z.string(),
     yt_video_id: z.string(),
-    yt_channel_id: z.string(),
     yt_comment: z.string(),
     sentiment: z.string(),
   })
