@@ -60,7 +60,7 @@ CREATE JOB IF NOT EXISTS supareel.sync_comments AS (
         tc.channel_id AS yt_channel_id
       FROM planetscale_datasource.TestComments tc
       LEFT JOIN planetscale_datasource.YouTubeComments yc ON tc.comment_id = yc.yt_comment_id
-      WHERE yc.yt_comment_id IS NULL AND tc.video_id IN (SELECT yt_video_id FROM planetscale_datasource.YouTubeVideo)
+      WHERE yc.yt_comment_id IS NULL AND tc.channel_id='UCdOb1Se6eXYpYHD8HWFXtWg'
     );
 ) END '2024-02-01 00:00:00' EVERY hour;
 
