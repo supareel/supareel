@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import type { YouTubeChannelDetails, YouTubeVideo } from "@prisma/client";
+import type {
+  YouTubeChannelDetails,
+  YouTubeComments,
+  YouTubeVideo,
+} from "@prisma/client";
 import { youtubePlaylistItemsInput } from "~/schema/youtube_api";
 import {
   type YTPlaylistVideosApiResponse,
@@ -186,11 +190,17 @@ export const videoRouter = createTRPCRouter({
         });
       }
     }),
-  ytVideoCommentAnalysis: publicProcedure
+  ytVideoComments: publicProcedure
     .input(savedYtVideoInput)
     .output(savedYtCommentOutput)
-    .query(async ({ input }): Promise<SavedYtCommentOutput> => {
-      const comments = await analyseComments(input.videoId);
+    .query(async ({ input, ctx }): Promise<SavedYtCommentOutput> => {
+      const comments: YouTubeComments[] = await ctx.db.youTubeComments.findMany(
+        {
+          where: {
+            yt_video_id: input.videoId,
+          },
+        }
+      );
       return comments;
     }),
 });

@@ -11,18 +11,16 @@ export const userDb = z.object({
 export type UserDb = z.TypeOf<typeof userDb>;
 
 export const ytChannelDetailsDb = z.object({
-  id: z.string(),
+  id: z.number(),
   yt_channel_id: z.string(),
-  yt_channel_title: z.string(),
-  yt_channel_thumbnails: z.string(),
-  yt_channel_customurl: z.string(),
-  yt_channel_uploads_playlist_id: z.string(),
+  yt_channel_title: z.string().nullable(),
+  yt_channel_thumbnails: z.string().nullable(),
+  yt_channel_customurl: z.string().nullable(),
   yt_channel_published_at: z.date().optional(),
-  userId: z.string(),
-  access_token: z.string(),
-  refresh_token: z.string(),
-  id_token: z.string(),
-  expiry_date: z.bigint(),
+  user_id: z.string(),
+  subscriber_count: z.bigint().nullable(),
+  video_count: z.bigint().nullable(),
+  view_count: z.bigint().nullable(),
 });
 
 export type YtChannelDetailsDb = z.TypeOf<typeof ytChannelDetailsDb>;

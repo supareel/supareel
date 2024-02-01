@@ -42,7 +42,6 @@ export async function GET(req: NextRequest, _: NextResponse) {
           Authorization: `Bearer ${tokens.access_token}`,
         },
       });
-
       const ytChannelDetails = response.data.items[0];
 
       await db.youTubeChannelDetails.upsert({
@@ -52,15 +51,9 @@ export async function GET(req: NextRequest, _: NextResponse) {
           yt_channel_customurl: ytChannelDetails?.snippet.customUrl,
           yt_channel_thumbnails:
             ytChannelDetails?.snippet.thumbnails.default.url,
-          yt_channel_uploads_playlist_id:
-            ytChannelDetails?.contentDetails.relatedPlaylists.uploads ?? "",
           yt_channel_published_at: new Date(
             ytChannelDetails?.snippet.publishedAt ?? ""
           ),
-          access_token: tokens.access_token ?? "",
-          expiry_date: tokens.expiry_date ?? 0,
-          id_token: tokens.id_token ?? "",
-          refresh_token: tokens.refresh_token ?? "",
           user: {
             connect: {
               email: userEmail,
@@ -73,24 +66,19 @@ export async function GET(req: NextRequest, _: NextResponse) {
           yt_channel_customurl: ytChannelDetails?.snippet.customUrl,
           yt_channel_thumbnails:
             ytChannelDetails?.snippet.thumbnails.default.url,
-          yt_channel_uploads_playlist_id:
-            ytChannelDetails?.contentDetails.relatedPlaylists.uploads,
           yt_channel_published_at: new Date(
             ytChannelDetails?.snippet.publishedAt ?? ""
           ),
-          access_token: tokens.access_token ?? "",
-          expiry_date: tokens.expiry_date ?? 0,
-          id_token: tokens.id_token ?? "",
-          refresh_token: tokens.refresh_token ?? "",
         },
         where: {
           yt_channel_id: ytChannelDetails?.id,
         },
       });
+
       return NextResponse.redirect(`${env.CLIENT_BASE_URL}/dashboard`, 301);
     }
   } catch (err) {
-    console.error(err);
+    console.error(JSON.stringify(err.response.data, null, 2));
     return NextResponse.redirect(
       `${env.CLIENT_BASE_URL}/error?error=${encodeURIComponent(
         "failed to link youtube channel"

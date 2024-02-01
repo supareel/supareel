@@ -109,7 +109,7 @@ export default function Dashboard() {
                           selectedChannel.ytChannelList!.channels.find(
                             (chan) =>
                               chan.yt_channel_id == videoMeta.yt_channel_id
-                          )?.yt_channel_thumbnails
+                          )?.yt_channel_thumbnails ?? ""
                         }
                         alt="@shadcn"
                       />

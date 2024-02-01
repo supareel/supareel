@@ -49,7 +49,7 @@ export default function VideoDetails({
     videoId: params.ytVideoId ?? "",
   });
 
-  const ytCommentDetail = api.video.ytVideoCommentAnalysis.useQuery({
+  const ytCommentDetail = api.video.ytVideoComments.useQuery({
     videoId: params.ytVideoId ?? "",
   });
 
@@ -209,7 +209,13 @@ export default function VideoDetails({
           <></>
         )}
 
-        <CommentTable comments={ytCommentDetail?.data} />
+        <CommentTable
+          comments={ytCommentDetail?.data?.map((dt) => ({
+            id: dt.id,
+            comment: dt.yt_comment,
+            sentiment: dt.sentiment,
+          }))}
+        />
       </div>
     );
 }

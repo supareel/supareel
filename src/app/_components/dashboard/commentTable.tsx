@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import {
   Table,
   TableBody,
@@ -13,7 +12,7 @@ import SpinLoader from "../loader";
 export function CommentTable({
   comments,
 }: {
-  comments: { comment: string; sentiment: string }[] | undefined;
+  comments: { id: number; comment: string; sentiment: string }[] | undefined;
 }) {
   if (!comments) {
     return (
@@ -35,8 +34,8 @@ export function CommentTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {comments?.map((cmt, index) => (
-              <TableRow key={index}>
+            {comments?.map((cmt) => (
+              <TableRow key={cmt.id}>
                 <TableCell className="font-medium">{cmt.comment}</TableCell>
                 <TableCell>
                   {cmt.sentiment == "neutral"

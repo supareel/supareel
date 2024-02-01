@@ -19,7 +19,11 @@ export const savedYtVideoOutput = z.object({
 });
 export const savedYtCommentOutput = z.array(
   z.object({
-    comment: z.string(),
+    id: z.number(),
+    yt_comment_id: z.string(),
+    yt_video_id: z.string(),
+    yt_channel_id: z.string(),
+    yt_comment: z.string(),
     sentiment: z.string(),
   })
 );
