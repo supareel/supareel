@@ -39,8 +39,8 @@ export const videoRouter = createTRPCRouter({
           videoDetailQuery
         );
 
-        const createdYtVideo: YouTubeVideo = await ctx.db.youTubeVideo.create({
-          data: {
+        const createdYtVideo: YouTubeVideo = await ctx.db.youTubeVideo.upsert({
+          create: {
             yt_video_title: String(videoDetailResult.rows[0]?.title),
             yt_video_description: String(
               videoDetailResult.rows[0]?.description
@@ -54,8 +54,23 @@ export const videoRouter = createTRPCRouter({
             like_count: parseInt(String(videoDetailResult.rows[0]?.like_count)),
             view_count: parseInt(String(videoDetailResult.rows[0]?.view_count)),
           },
+          update: {
+            yt_video_title: String(videoDetailResult.rows[0]?.title),
+            yt_video_description: String(
+              videoDetailResult.rows[0]?.description
+            ),
+            comment_count: parseInt(
+              String(videoDetailResult.rows[0]?.comment_count)
+            ),
+            like_count: parseInt(String(videoDetailResult.rows[0]?.like_count)),
+            view_count: parseInt(String(videoDetailResult.rows[0]?.view_count)),
+          },
+          where: {
+            yt_video_id: input.video_id,
+          },
         });
 
+        console.log(createdYtVideo);
         const videoResult = {
           channel_title: String(videoDetailResult.rows[0]?.channel_title),
           channel_id: createdYtVideo.yt_channel_id ?? "",

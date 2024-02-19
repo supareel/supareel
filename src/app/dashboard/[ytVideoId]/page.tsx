@@ -58,19 +58,9 @@ export default function VideoDetails({
     video_id: params.ytVideoId ?? "",
   });
 
-  const ytVideosSyncList = api.mindsdb.manualSyncVideoComments.useQuery(
-    {
-      video_id: params.ytVideoId ?? "",
-    },
-    {
-      enabled: false,
-      refetchOnMount: false,
-    }
-  );
-
   const handleYTCommentsList = async () => {
     // manually refetch
-    await ytVideosSyncList.refetch();
+    // await ytVideosSyncList.refetch();
   };
 
   const ytCommentDetail = api.video.ytVideoComments.useQuery({
@@ -149,7 +139,7 @@ export default function VideoDetails({
               </Link>
             </div>
             <div className="flex justify-evenly my-6">
-              <p className="capitalize font-bold text-sm">
+              {/* <p className="capitalize font-bold text-sm">
                 Views: {ytVideosDetail.data?.view_count}
               </p>
               <p className="capitalize font-bold text-sm">
@@ -157,7 +147,7 @@ export default function VideoDetails({
               </p>
               <p className="capitalize font-bold text-sm">
                 Comments: {ytVideosDetail.data?.comment_count}
-              </p>
+              </p> */}
             </div>
           </div>
           <div className="col-span-7 gap-2 flex flex-col">
@@ -223,7 +213,7 @@ export default function VideoDetails({
                 </div>
               </div>
             </div>
-            <Button
+            {/* <Button
               variant="outline"
               className="gap-2"
               size="lg"
@@ -236,7 +226,7 @@ export default function VideoDetails({
                 <SymbolIcon />
               )}
               Sync video comments
-            </Button>
+            </Button> */}
           </div>
         </div>
         <Separator className="my-8" />

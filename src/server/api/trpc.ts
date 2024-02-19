@@ -14,7 +14,6 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
-import { connectMindsDB } from "../mindsdb";
 
 /**
  * 1. CONTEXT
@@ -31,21 +30,13 @@ import { connectMindsDB } from "../mindsdb";
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await getServerAuthSession();
   const ytChannel: YouTubeChannelDetails = {
-    userId: "",
-    access_token: "",
-    refresh_token: "",
-    expiry_date: BigInt(0),
-    id: "",
-    id_token: "",
+    id: 0,
     yt_channel_customurl: "",
     yt_channel_id: "",
     yt_channel_published_at: null,
     yt_channel_thumbnails: "",
     yt_channel_title: "",
-    yt_channel_uploads_playlist_id: "",
   };
-
-  await connectMindsDB();
 
   return {
     db,
@@ -140,7 +131,7 @@ const ytAuthed = t.middleware(async ({ ctx, next }) => {
     const userYtChannel: YouTubeChannelDetails | null =
       await ctx.db.youTubeChannelDetails.findFirst({
         where: {
-          userId: ctx.session.user.id,
+          id: ctx.session.user.id,
         },
       });
 

@@ -35,19 +35,9 @@ export default function Dashboard() {
     channel_id: selectedChannel?.yt_channel_id ?? "",
   });
 
-  const ytVideosSyncList = api.mindsdb.manualSyncMyUploadedVideos.useQuery(
-    {
-      channel_id: selectedChannel?.yt_channel_id ?? "",
-    },
-    {
-      enabled: false,
-      refetchOnMount: false,
-    }
-  );
-
   const handleYTVideosList = async () => {
     // manually refetch
-    await ytVideosSyncList.refetch();
+    // await ytVideosSyncList.refetch();
   };
 
   function grabVideoId(): string {
@@ -93,7 +83,7 @@ export default function Dashboard() {
             <div className="px-2 text-gray-500 italic">or</div>
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
-          <Button
+          {/* {<Button
             variant="secondary"
             className="gap-2"
             disabled={ytVideosSyncList.isRefetching}
@@ -105,7 +95,7 @@ export default function Dashboard() {
               <SymbolIcon />
             )}
             Sync YouTube Videos
-          </Button>
+          </Button>} */}
         </div>
         <div className="grid grid-cols-4 gap-4 m-4">
           {ytVideosList.data?.map((videoMeta) => {

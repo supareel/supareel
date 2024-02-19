@@ -1,7 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { channelDetailsRouter } from "./routers/channel";
 import { videoRouter } from "./routers/video";
-import { mindsdbRouter } from "./routers/mindsdb";
 
 /**
  * This is the primary router for your server.
@@ -11,7 +10,6 @@ import { mindsdbRouter } from "./routers/mindsdb";
 export const appRouter = createTRPCRouter({
   channel: channelDetailsRouter,
   video: videoRouter,
-  mindsdb: mindsdbRouter,
 });
 
 // export type definition of API

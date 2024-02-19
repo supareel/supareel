@@ -41,7 +41,6 @@ export const env = createEnv({
     YT_API_KEY: z.string().trim().min(1),
     CLIENT_BASE_URL: z.string().trim().min(1),
 
-    MINDSDB_HOST_URL: z.string().trim().min(1),
     DATASOURCE_NAME: z.string().trim().min(1),
     SENTIMENT_CLASSIFIER: z.string().trim().min(1),
     JOB_INTERVAL_MINUTES: z.string().transform(Number).default("10"),
@@ -74,7 +73,6 @@ export const env = createEnv({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     YT_API_KEY: process.env.YT_API_KEY,
     CLIENT_BASE_URL: process.env.CLIENT_BASE_URL,
-    MINDSDB_HOST_URL: process.env.MINDSDB_HOST_URL,
     DATASOURCE_NAME: process.env.DATASOURCE_NAME,
     SENTIMENT_CLASSIFIER: process.env.SENTIMENT_CLASSIFIER,
     JOB_INTERVAL_MINUTES: process.env.JOB_INTERVAL_MINUTES,

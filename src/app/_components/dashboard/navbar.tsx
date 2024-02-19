@@ -37,19 +37,9 @@ export function DashboardTopNavigation() {
   const { selectedChannel, ytChannelList, setSelectedChannel } =
     useSelectedYoutubeChannel();
 
-  const ytVideosSyncList = api.mindsdb.manualSyncMyUploadedVideos.useQuery(
-    {
-      channel_id: selectedChannel?.yt_channel_id ?? "",
-    },
-    {
-      enabled: false,
-      refetchOnMount: false,
-    }
-  );
-
   const handleYTVideosList = async () => {
     // manually refetch
-    await ytVideosSyncList.refetch();
+    // await ytVideosSyncList.refetch();
   };
 
   return status == "authenticated" ? (
