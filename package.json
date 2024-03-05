@@ -51,7 +51,7 @@
     "react-hook-form": "^7.50.1",
     "recharts": "^2.10.4",
     "sanitize-filename": "^1.6.3",
-    "sanitize-html": "^2.11.0",
+    "sanitize-html": "^2.12.1",
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^2.2.0",
